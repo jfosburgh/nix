@@ -8,10 +8,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helium.url = "github:amaanq/helium-flake";
-    niri.url = "github:YaLUG/niri";
+	noctalia = {
+	  url = "github:noctalia-dev/noctalia";
+	  inputs.nixpkgs.follows = "nixpkgs";
+	};
   };
 
-  outputs = { self, nixpkgs, home-manager, helium, niri, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, helium, noctalia, ... }@inputs:
   let
     mkHost = { hostname, system ? "x86_64-linux" }: nixpkgs.lib.nixosSystem {
       inherit system;
@@ -35,9 +38,7 @@
     };
   in {
     nixosConfigurations = {
-      sting      = mkHost { hostname = "sting"; };
       glamdring  = mkHost { hostname = "glamdring"; };
-      pinas      = mkHost { hostname = "pinas"; system = "aarch64-linux"; };
     };
 
     homeConfigurations = {
@@ -45,33 +46,7 @@
         username = "james";
         system = "x86_64-linux";
         modules = [
-          ./home/james.nix
-          ./modules/home/wm/niri.nix
-        ];
-      };
-
-      "laptop" = mkHome {
-        username = "james";
-        system = "x86_64-linux";
-        modules = [
-          ./home/james.nix
-          ./modules/home/wm/niri.nix
-        ];
-      };
-
-      "server" = mkHome {
-        username = "james";
-        system = "x86_64-linux";
-        modules = [
-          ./home/james.nix
-        ];
-      };
-
-      "arm-server" = mkHome {
-        username = "james";
-        system = "aarch64-linux";
-        modules = [
-          ./home/james.nix
+          ./home/desktop.nix
         ];
       };
     };

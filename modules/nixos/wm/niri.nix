@@ -1,12 +1,6 @@
-{ pkgs, inputs, ... }: {
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
-
+{ pkgs, config, ... }: {
   programs.niri = {
     enable = true;
-    package = inputs.niri.packages.${pkgs.system}.niri;
   };
 
   xdg.portal = {
@@ -22,10 +16,15 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd niri";
-        user = "greeter";
+        command = "${config.programs.niri.package}/bin/niri-session";
+        user = "james";
       };
     };
   };
-  environment.systemPackages = [ pkgs.greetd.tuigreet ];
+
+  environment.systemPackages = with pkgs; [
+	xwayland-satellite
+  ];
+
+  systemd.user.services.niri.enableDefaultPath = false;
 }

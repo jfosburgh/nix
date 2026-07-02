@@ -13,11 +13,13 @@
   networking.networkmanager.enable = true;
 
   environment.systemPackages = with pkgs; [
+    bash
     curl
     wget
     git
     vim
     rsync
+    home-manager
   ];
 
   nixpkgs.config.allowUnfree = true;

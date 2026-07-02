@@ -4,7 +4,7 @@
   users.users.james = {
     isNormalUser = true;
     description = "James";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "render" ];
     shell = pkgs.zsh;
   };
 }
