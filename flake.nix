@@ -8,13 +8,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helium.url = "github:amaanq/helium-flake";
+	niri.url = "github:sodiboo/niri-flake";
 	noctalia = {
 	  url = "github:noctalia-dev/noctalia";
 	  inputs.nixpkgs.follows = "nixpkgs";
 	};
   };
 
-  outputs = { self, nixpkgs, home-manager, helium, noctalia, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, helium, niri, noctalia, ... }@inputs:
   let
     mkHost = { hostname, system ? "x86_64-linux" }: nixpkgs.lib.nixosSystem {
       inherit system;

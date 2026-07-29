@@ -1,6 +1,9 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, inputs, ... }: {
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+
   programs.niri = {
     enable = true;
+	package = pkgs.niri-stable;
   };
 
   xdg.portal = {
