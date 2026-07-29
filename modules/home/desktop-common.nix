@@ -14,10 +14,13 @@ in
 
 	# CLI Utilities
     wiremix
-	bluetui
+    bluetui
 
-	# GUI Applications
+    # GUI Applications
     vlc
+    (discord.override {
+        withVencord = true;
+    })
   ];
 
   xdg.configFile = {
