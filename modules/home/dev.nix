@@ -24,6 +24,8 @@ let dot = "${config.home.homeDirectory}/dotfiles"; in
     # Docs
     man-pages
     man-db
+
+	devenv
   ];
 
   xdg.configFile."nvim".source =
