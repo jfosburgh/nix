@@ -9,10 +9,7 @@
     };
     helium.url = "github:AlvaroParker/helium-nix";
 	niri.url = "github:sodiboo/niri-flake";
-	noctalia = {
-	  url = "github:noctalia-dev/noctalia";
-	  inputs.nixpkgs.follows = "nixpkgs";
-	};
+	noctalia.url = "github:noctalia-dev/noctalia/cachix";
   };
 
   outputs = { self, nixpkgs, home-manager, helium, niri, noctalia, ... }@inputs:
