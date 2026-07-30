@@ -7,7 +7,7 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    helium.url = "github:amaanq/helium-flake";
+    helium.url = "github:AlvaroParker/helium-nix";
 	niri.url = "github:sodiboo/niri-flake";
 	noctalia = {
 	  url = "github:noctalia-dev/noctalia";
