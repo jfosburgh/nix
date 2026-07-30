@@ -13,18 +13,14 @@ let dot = "${config.home.homeDirectory}/dotfiles"; in
 
     # LSPs
     lua-language-server
-    pyright
-    ruff
-    rust-analyzer
     tree-sitter
-    glslang
-    shader-slang
 	nixd
 
     # Docs
     man-pages
     man-db
 
+	# Nix Utils
 	devenv
   ];
 
