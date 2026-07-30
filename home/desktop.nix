@@ -7,5 +7,6 @@
 	../modules/home/dev.nix
 	../modules/home/fonts.nix
 	../modules/home/shell.nix
+    ../modules/home/ai.nix
   ];
 }

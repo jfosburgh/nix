@@ -1,11 +1,13 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
+	home.packages = with pkgs; [
+		llama-cpp-vulkan
+	];
+
 	services.ollama = {
 		enable = true;
-		acceleration = "vulkan";
+		package = pkgs.ollama-vulkan;
 	};
 
-	home.packages = with pkgs; [
-		pi-coding-agent
-	];
+	programs.pi-coding-agent.enable = true;
 }
