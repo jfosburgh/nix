@@ -4,7 +4,7 @@
 		...
 	}: let
 		modules = with self.nixosModules; [
-			boot
+			bootloader
 			locale
 			network
 			nix
