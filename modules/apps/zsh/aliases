@@ -1,0 +1,17 @@
+alias c='clear'
+alias pf='fastfetch'
+alias ls='eza -lh --group-directories-first --icons=auto'
+alias ll='eza -al --group-directories-first --icons=always'
+alias lt='eza -a --tree --level=2 --icons=always'
+alias cd="zd"
+alias ff='sudo fd -HI -a --exclude .snapshots'
+alias is='fzf --preview="bat --style=numbers --color=always {}"'
+alias nis='nvim $(fzf --preview="bat --color=always {}")'
+alias mvim='NVIM_APPNAME=nvim_minimal nvim'
+
+# Directories
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+alias bb='s5cmd --endpoint-url https://s3.us-east-005.backblazeb2.com --credentials-file ~/.b2_s5cmd'

@@ -8,17 +8,9 @@
 			locale
 			network
 			nix
-			power
 		];
 	in {
-		imports = 
-			[
-				/etc/nixos/hardware-configuration.nix
-			]
-			++ modules;
-
-		services = {
-		};
+		imports = modules;
 
 		environment.systemPackages = with pkgs; [
 			bash

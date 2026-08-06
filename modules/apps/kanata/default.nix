@@ -19,6 +19,11 @@
 
 		services.kanata = {
 			enable = true;
+
+			keyboards.internalKeyboard = {
+				devices = [ ];
+				configFile = ./kanata.kbd;
+			};
 		};
 	};
 }
