@@ -19,10 +19,12 @@
 				imports = with self.homeModules; [
 					zsh
 					noctalia
+					niri
 					tmux
 					git
 					nvim
 					devtools
+					ghostty
 				];
 
 				home.stateVersion = "26.05";

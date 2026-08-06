@@ -1,10 +1,4 @@
 { inputs, ... }: {
-	flake.nixosModules.noctalia = { ... }: {
-		imports = [ inputs.noctalia.nixosModules.default ];
-
-		programs.noctalia.enable = true;
-	};
-
 	flake.homeModules.noctalia = { ... }: {
 		imports = [ inputs.noctalia.homeModules.default ];
 
@@ -17,6 +11,7 @@
 					builtin = "Catppuccin";
 				};
 
+				# TODO: fix config
 				wallpaper = {
 					enabled = true;
 					default.path = ./wallpaper.jpg;

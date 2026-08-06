@@ -1,8 +1,17 @@
+# TODO: figure out what of this is actually needed r.e. unfree
 { inputs, ... }: {
-	perSystem = { system, ... }: {
+	perSystem = { config, lib, system, ... }: {
 		_module.args.unfreePkgs = import inputs.nixpkgs {
 			inherit system;
 			config.allowUnfree = true;
+		};
+
+		_module.args.pkgs = import inputs.nixpkgs {
+			inherit system;
+			config.allowUnfreePredicate = pkg:
+			  builtins.elem (lib.getName pkg) [
+			    "vintagestory"
+			  ];
 		};
 	};
 

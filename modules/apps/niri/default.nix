@@ -35,4 +35,9 @@
 
 		systemd.user.services.niri.enableDefaultPath = false;
 	};
+
+	# TODO: see if this can be fixed
+	flake.homeModules.niri = { ... }: {
+		xdg.configFile."niri/config.kdl".source = ./config.kdl;
+	};
 }

@@ -7,7 +7,7 @@
 			bluetooth
 			kanata
 			niri
-			noctalia
+			# noctalia
 			fonts
 			ghostty
 			helium

@@ -7,6 +7,8 @@
 			glamdring-hardware
 			nvidia-1080ti
 			james
+			vintagestory
+			steam
 		];
 	};
 }
