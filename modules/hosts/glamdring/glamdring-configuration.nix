@@ -3,7 +3,7 @@
 		networking.hostName = "glamdring";
 
 		services.greetd.settings.default_session = {
-			command = "${config.programs.niri.package}/bin/niri --session --config ${./config.kdl}";
+			command = "${config.programs.niri.package}/bin/niri --session --config ${config.programs.niri.package}/config.kdl";
 			user = "james";
 		};
 
