@@ -12,7 +12,7 @@ window-rule {
 }
 
 window-rule {
-	match at-startup=true app-id="helium"
+	match at-startup=true app-id="zen"
 	open-on-workspace "browser"
 }
 
@@ -64,7 +64,7 @@ output "eDP-1" {
 }
 
 output "DP-1" {
-    scale 1
+    scale 1.33333
     transform "normal"
     position x=0 y=0
 	mode "3840x2160@120"
@@ -381,6 +381,6 @@ layer-rule {
 	place-within-backdrop true
 }
 
-window-rule {
-	opacity 0.95
-}
+// window-rule {
+// 	opacity 0.95
+// }

@@ -10,10 +10,13 @@
 			# noctalia
 			fonts
 			ghostty
-			helium
+			zen
 			discord
 		];
 
-		environment.systemPackages = [ pkgs.vlc ];
+		environment.systemPackages = [ 
+			pkgs.chromium
+			pkgs.vlc
+		];
 	};
 }
