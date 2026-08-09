@@ -5,7 +5,7 @@
 			graphical
 			glamdring-configuration
 			glamdring-hardware
-			nvidia-1080ti
+			amd-gpu
 			james
 			vintagestory
 			steam

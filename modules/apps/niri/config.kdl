@@ -63,8 +63,8 @@ output "eDP-1" {
     position x=528 y=1440
 }
 
-output "DP-3" {
-    scale 1.5
+output "DP-1" {
+    scale 1
     transform "normal"
     position x=0 y=0
 	mode "3840x2160@120"
