@@ -17,6 +17,7 @@
 			curl
 			git
 			home-manager
+			pciutils
 			vim
 			wget
 		];
