@@ -1,19 +1,16 @@
 { ... }: {
-	flake.nixosModules.glamdring-configuration = { config, pkgs, ... }: {
+	flake.nixosModules.glamdring-configuration = { pkgs, ... }: {
 		networking.hostName = "glamdring";
 
-		services.greetd.settings.default_session = {
-			command = "${config.programs.niri.package}/bin/niri --session"; # --config ${config.programs.niri.package}/config.kdl";
-			user = "james";
-		};
+		services.greetd.settings.initial_session.user = "james";
 
 		# Host-specific extra users 
-
-		# users.users.<username> = {
-		# 	isNormalUser = true;
-		# 	description = "<username>";
-		# 	extraGroups = [ "networkmanager" ];
-		# 	shell = pkgs.zsh;
-		# };
+		users.users.resin = {
+			isNormalUser = true;
+			description = "resin";
+			extraGroups = [ "networkmanager" ];
+			shell = pkgs.zsh;
+			initialPassword = "changeme";
+		};
 	};
 }

@@ -7,6 +7,9 @@
 	};
 
 	flake.homeModules.ai = { pkgs, ... }: {
-		home.packages = [ pkgs.pi-coding-agent ];
+		home.packages = [ 
+			pkgs.pi-coding-agent
+			pkgs.claude-code
+		];
 	};
 }

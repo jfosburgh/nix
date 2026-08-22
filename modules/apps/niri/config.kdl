@@ -70,6 +70,20 @@ output "DP-1" {
 	mode "3840x2160@120"
 }
 
+// output "HDMI-A-1" {
+//     scale 1.33333
+//     transform "normal"
+//     position x=0 y=0
+// 	mode "3840x2160@120"
+// }
+
+output "HDMI-A-1" {
+    scale 1.5
+    transform "normal"
+    position x=0 y=0
+	mode "3840x2160@60"
+}
+
 layout {
     gaps 4
     center-focused-column "never"
