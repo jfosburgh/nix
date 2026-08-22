@@ -1,0 +1,1 @@
+exec setsid uwsm app -- ghostty --title=FloatTerm -e bash

@@ -1,5 +1,5 @@
 { ... }: {
-	flake.nixosModules.bluetooth = { pkgs, ... }: {
+	flake.nixosModules.bluetooth = { ... }: {
 		hardware.bluetooth = {
 			enable = true;
 			powerOnBoot = true;
@@ -7,7 +7,5 @@
 		};
 
 		services.blueman.enable = true;
-
-		environment.systemPackages = [ pkgs.bluetui ];
 	};
 }

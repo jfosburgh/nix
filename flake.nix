@@ -8,8 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helium.url = "github:AlvaroParker/helium-nix";
-	niri.url = "github:sodiboo/niri-flake";
-	noctalia.url = "github:noctalia-dev/noctalia/cachix";
 	flake-parts.url = "github:hercules-ci/flake-parts";
 	import-tree.url = "github:vic/import-tree";
 	wrappers.url = "github:BirdeeHub/nix-wrapper-modules";

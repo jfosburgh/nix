@@ -1,7 +1,7 @@
-{ moduleWithSystem, ... }: {
-	flake.nixosModules.helium = moduleWithSystem ({ inputs', ... }: {
-		environment.systemPackages = [
-			inputs'.helium.packages.default
+{ inputs, ... }: {
+	flake.homeModules.helium = { ... }: {
+		home.packages = [
+			inputs.helium.packages.x86_64-linux.default
 		];
-	});
+	};
 }

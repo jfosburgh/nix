@@ -1,6 +1,7 @@
 { ... }: {
 	flake.nixosModules.narsil-configuration = { pkgs, ... }: {
 		_module.args.dotfilesRoot = "/home/james/nix";
+		_module.args.sessionCommand = "${pkgs.uwsm}/bin/uwsm start -e -D Hyprland hyprland.desktop";
 
 		networking.hostName = "narsil";
 

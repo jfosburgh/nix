@@ -4,7 +4,7 @@
 	pkgs = import inputs.nixpkgs {
 		system = "x86_64-linux";
 		config.allowUnfree = true;
-		overlays = [ inputs.niri.overlays.niri ];
+		overlays = [ self.overlays.hyprland-glaze-fix ];
 	};
 
 	base = { ... }: {
@@ -18,6 +18,14 @@
 			VISUAL = "nvim";
 			PAGER = "less";
 		};
+
+		services.home-manager.autoExpire = {
+			enable = true;
+			frequency = "weekly";
+			timestamp = "-5 days";
+			store.cleanup = true;
+			store.options = "--delete-older-than 5d";
+		};
 	};
 
 	common = [ base ] ++ (with self.homeModules; [
@@ -29,13 +37,13 @@
 		ai
 	]);
 
-	graphical = with self.homeModules; [
-		noctalia
+	desktopApps = with self.homeModules; [
 		ghostty
-		niri
 		zen
 		discord
-		browsers
+		helium
+		vlc
+		hyprland
 	];
 
 	desktopOnly = with self.homeModules; [
@@ -49,7 +57,7 @@
 in {
 	flake.homeConfigurations = {
 		"james@headless" = mkProfile common;
-		"james@laptop" = mkProfile (common ++ graphical);
-		"james@desktop" = mkProfile (common ++ graphical ++ desktopOnly);
+		"james@laptop" = mkProfile (common ++ desktopApps);
+		"james@desktop" = mkProfile (common ++ desktopApps ++ desktopOnly);
 	};
 }

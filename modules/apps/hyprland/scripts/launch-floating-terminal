@@ -1,0 +1,2 @@
+cmd="$*"
+exec ghostty --title=FloatTerm -e bash -c "$cmd"

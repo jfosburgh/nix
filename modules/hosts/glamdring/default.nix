@@ -3,6 +3,7 @@
 		system = "x86_64-linux";
 		modules = with self.nixosModules; [
 			graphical
+			hyprland
 			glamdring-configuration
 			glamdring-hardware
 			amd-gpu

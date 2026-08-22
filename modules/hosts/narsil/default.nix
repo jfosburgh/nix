@@ -3,6 +3,7 @@
 		system = "x86_64-linux";
 		modules = with self.nixosModules; [
 			graphical
+			hyprland
 			narsil-configuration
 			narsil-hardware
 			amd-gpu

@@ -6,7 +6,6 @@
 			audio
 			bluetooth
 			kanata
-			niri
 			fonts
 		];
 	};

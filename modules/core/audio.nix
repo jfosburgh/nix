@@ -1,5 +1,5 @@
 { ... }: {
-	flake.nixosModules.audio = { pkgs, ... }: {
+	flake.nixosModules.audio = { ... }: {
 		services = {
 			pulseaudio.enable = false;
 
@@ -12,7 +12,5 @@
 				wireplumber.enable = true;
 			};
 		};
-
-		environment.systemPackages = [ pkgs.wiremix ];
 	};
 }

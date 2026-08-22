@@ -1,8 +1,7 @@
 { ... }: {
-	flake.nixosModules.greetd-autologin = { config, ... }: {
+	flake.nixosModules.greetd-autologin = { sessionCommand, ... }: {
 		services.greetd.restart = true;
 
-		services.greetd.settings.initial_session.command =
-			"${config.programs.niri.package}/bin/niri --session --config /etc/niri/config.kdl";
+		services.greetd.settings.initial_session.command = sessionCommand;
 	};
 }

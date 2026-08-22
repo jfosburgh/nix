@@ -15,3 +15,7 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 alias bb='s5cmd --endpoint-url https://s3.us-east-005.backblazeb2.com --credentials-file ~/.b2_s5cmd'
+
+# Cleanup
+alias nixos-gc='sudo nix-collect-garbage -d'
+alias hm-gc='home-manager expire-generations "-1 min" && nix-collect-garbage -d'
