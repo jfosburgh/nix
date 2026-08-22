@@ -6,6 +6,8 @@
 
 		environment.systemPackages = [ pkgs.nvtopPackages.full ];
 
+		services.xserver.videoDrivers = [ "nvidia" ];
+
 		hardware = {
 			graphics = {
 				enable = true;
