@@ -10,8 +10,6 @@
 			james
 			steam
 			ai
-			greetd-autologin
-			greetd-tuigreet
 		];
 	};
 }

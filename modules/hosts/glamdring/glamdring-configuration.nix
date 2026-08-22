@@ -1,13 +1,19 @@
 { ... }: {
 	flake.nixosModules.glamdring-configuration = { pkgs, ... }: {
 		_module.args.dotfilesRoot = "/home/james/nix";
-		_module.args.sessionCommand = "${pkgs.uwsm}/bin/uwsm start -e -D Hyprland hyprland.desktop";
 
 		networking.hostName = "glamdring";
 
-		services.greetd.settings.initial_session.user = "james";
+		jovian.steam = {
+			enable = true;
+			autoStart = true;
+			user = "james";
+			desktopSession = "hyprland-uwsm";
+		};
 
-		# Host-specific extra users 
+		services.logind.settings.Login.HandlePowerKeyLongPress = "hibernate";
+
+		# Host-specific extra users
 		users.users.resin = {
 			isNormalUser = true;
 			description = "resin";

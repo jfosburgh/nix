@@ -9,5 +9,11 @@
 			localNetworkGameTransfers.openFirewall = true;
 			gamescopeSession.enable = true;
 		};
+
+		programs.gamemode.enable = true;
+	};
+
+	flake.homeModules.steam = { pkgs, ... }: {
+		home.packages = [ pkgs.mangohud ];
 	};
 }

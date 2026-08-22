@@ -59,5 +59,6 @@ in {
 		"james@headless" = mkProfile common;
 		"james@laptop" = mkProfile (common ++ desktopApps);
 		"james@desktop" = mkProfile (common ++ desktopApps ++ desktopOnly);
+		"james@steammachine" = mkProfile (common ++ desktopApps ++ (with self.homeModules; [ steam ]));
 	};
 }

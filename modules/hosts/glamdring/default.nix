@@ -6,12 +6,12 @@
 			hyprland
 			glamdring-configuration
 			glamdring-hardware
-			amd-gpu
+			nvidia-1080ti
 			james
 			steam
 			ai
-			greetd-autologin
-			greetd-tuigreet
+		] ++ [
+			inputs.jovian.nixosModules.default
 		];
 	};
 }

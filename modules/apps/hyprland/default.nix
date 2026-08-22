@@ -21,7 +21,6 @@
 
 		xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
-		services.greetd.enable = true;
 		services.gvfs.enable = true;
 		services.udev.packages = [ pkgs.swayosd ];
 

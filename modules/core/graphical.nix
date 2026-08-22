@@ -7,6 +7,7 @@
 			bluetooth
 			kanata
 			fonts
+			sddm
 		];
 	};
 }
