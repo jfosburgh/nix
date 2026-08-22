@@ -1,9 +1,7 @@
-{ moduleWithSystem, ... }: {
-	flake.nixosModules.vintagestory = moduleWithSystem ({
-		pkgs, ...
-	}: {
-		environment.systemPackages = [
+{ ... }: {
+	flake.homeModules.vintagestory = { pkgs, ... }: {
+		home.packages = [
 			pkgs.vintagestory
 		];
-	});
+	};
 }

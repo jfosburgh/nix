@@ -7,7 +7,6 @@
 			glamdring-hardware
 			amd-gpu
 			james
-			vintagestory
 			steam
 			ai
 			greetd-autologin

@@ -1,5 +1,5 @@
 { ... }: {
-	flake.homeModules.nvim = { pkgs, ... }: {
+	flake.homeModules.nvim = { pkgs, lib, config, dotfilesRoot, ... }: {
 		programs.neovim.enable = true;
 
 		# nvim-treesitter compiles its own parsers, so it needs a compiler.
@@ -9,6 +9,9 @@
 			gcc
 		];
 
-		xdg.configFile.nvim.source = ./config;
+		xdg.configFile.nvim.source =
+			config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/nvim/config";
+
+		xdg.configFile."nvim/init.lua".enable = lib.mkForce false;
 	};
 }

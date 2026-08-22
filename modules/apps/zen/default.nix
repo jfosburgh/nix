@@ -1,7 +1,7 @@
-{ moduleWithSystem, ... }: {
-	flake.nixosModules.zen = moduleWithSystem ({ inputs', ... }: {
-		environment.systemPackages = [
-			inputs'.zen-browser.packages.default
+{ inputs, ... }: {
+	flake.homeModules.zen = { ... }: {
+		home.packages = [
+			inputs.zen-browser.packages.x86_64-linux.default
 		];
-	});
+	};
 }

@@ -1,11 +1,10 @@
 { ... }: {
-	flake.nixosModules.ghostty = { pkgs, ... }: {
-		environment.systemPackages = [ pkgs.ghostty ];
-	};
+	flake.homeModules.ghostty = { pkgs, config, dotfilesRoot, ... }: {
+		home.packages = [ pkgs.ghostty ];
 
-	# TODO: see if this can be fixed
-	flake.homeModules.ghostty = { ... }: {
-		xdg.configFile."ghostty/config".source = ./config;
-		xdg.configFile."ghostty/themes/catppuccin-mocha.conf".source = ./catppuccin-mocha.conf;
+		xdg.configFile."ghostty/config".source =
+			config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/ghostty/config";
+		xdg.configFile."ghostty/themes/catppuccin-mocha.conf".source =
+			config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/ghostty/catppuccin-mocha.conf";
 	};
 }

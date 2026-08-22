@@ -1,5 +1,5 @@
 { self, ... }: {
-	flake.nixosModules.graphical = { pkgs, ... }: {
+	flake.nixosModules.graphical = { ... }: {
 		imports = with self.nixosModules; [
 			core
 			power
@@ -7,16 +7,7 @@
 			bluetooth
 			kanata
 			niri
-			# noctalia
 			fonts
-			ghostty
-			zen
-			discord
-		];
-
-		environment.systemPackages = [ 
-			pkgs.chromium
-			pkgs.vlc
 		];
 	};
 }

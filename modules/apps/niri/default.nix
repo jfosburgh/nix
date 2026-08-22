@@ -1,6 +1,6 @@
 { inputs, ... }: {
 	flake.nixosModules.niri = {
-		pkgs, ...
+		pkgs, lib, dotfilesRoot, ...
 	}: {
 		nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
@@ -9,7 +9,10 @@
 			package = pkgs.niri-stable;
 		};
 
-		environment.etc."niri/config.kdl".source = ./config.kdl;
+		environment.etc."niri/config.kdl".source =
+			pkgs.runCommandLocal "niri-config-kdl" { } ''
+				ln -s ${lib.escapeShellArg "${dotfilesRoot}/modules/apps/niri/config.kdl"} $out
+			'';
 
 		xdg.portal = {
 			enable = true;
@@ -36,5 +39,12 @@
 		];
 
 		systemd.user.services.niri.enableDefaultPath = false;
+	};
+
+	flake.homeModules.niri = { pkgs, config, dotfilesRoot, ... }: {
+		home.packages = [ pkgs.niri-stable ];
+
+		xdg.configFile."niri/config.kdl".source =
+			config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/niri/config.kdl";
 	};
 }

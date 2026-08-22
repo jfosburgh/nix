@@ -1,5 +1,5 @@
 { ... }: {
-	flake.homeModules.tmux = { lib, pkgs, ... }: {
+	flake.homeModules.tmux = { lib, pkgs, config, dotfilesRoot, ... }: {
 		home.packages = [
 			pkgs.tmux
 
@@ -10,7 +10,8 @@
 			})
 		];
 
-		home.file.".tmux.conf".source = ./tmux.conf;
+		home.file.".tmux.conf".source =
+			config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/tmux/tmux.conf";
 
 		# tmux-plugins/tpm isn't packaged declaratively -- clone it once so
 		# `run '~/.tmux/plugins/tpm/tpm'` in tmux.conf has something to run.
