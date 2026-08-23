@@ -12,14 +12,5 @@
 		};
 
 		services.logind.settings.Login.HandlePowerKeyLongPress = "hibernate";
-
-		# Host-specific extra users
-		users.users.resin = {
-			isNormalUser = true;
-			description = "resin";
-			extraGroups = [ "networkmanager" ];
-			shell = pkgs.zsh;
-			initialPassword = "changeme";
-		};
 	};
 }

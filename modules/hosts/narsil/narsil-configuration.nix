@@ -10,10 +10,16 @@
 		};
 		services.displayManager.defaultSession = "hyprland-uwsm";
 
-		# Host-specific extra users 
-		users.users.resin = {
+		# GNOME session, for the work user (see users.users.work below). james
+		# stays on Hyprland via the autologin default session above; SDDM's
+		# session picker lets work choose GNOME at login.
+		services.xserver.enable = true;
+		services.desktopManager.gnome.enable = true;
+
+		# Host-specific extra users
+		users.users.work = {
 			isNormalUser = true;
-			description = "resin";
+			description = "work";
 			extraGroups = [ "networkmanager" ];
 			shell = pkgs.zsh;
 			initialPassword = "changeme";
