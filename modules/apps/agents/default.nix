@@ -3,6 +3,7 @@
 		home.packages = [
 			pkgs.pi-coding-agent
 			pkgs.claude-code
+			pkgs.nodejs
 		];
 
 		home.file.".pi/agent/models.json".source =
