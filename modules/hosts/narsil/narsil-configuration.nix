@@ -20,7 +20,7 @@
 		users.users.work = {
 			isNormalUser = true;
 			description = "work";
-			extraGroups = [ "networkmanager" ];
+			extraGroups = [ "networkmanager" "wheel" ];
 			shell = pkgs.zsh;
 			initialPassword = "changeme";
 		};

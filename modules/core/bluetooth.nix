@@ -1,5 +1,5 @@
 { ... }: {
-	flake.nixosModules.bluetooth = { ... }: {
+	flake.nixosModules.bluetooth = { pkgs, ... }: {
 		hardware.bluetooth = {
 			enable = true;
 			powerOnBoot = true;
@@ -13,5 +13,22 @@
 		boot.blacklistedKernelModules = [ "xpad" ];
 
 		services.blueman.enable = true;
+
+		systemd.services.bluetooth-poweron-retry = {
+			description = "Retry powering on the Bluetooth adapter";
+			after = [ "bluetooth.service" ];
+			requires = [ "bluetooth.service" ];
+			wantedBy = [ "bluetooth.target" ];
+			serviceConfig.Type = "oneshot";
+			script = ''
+				for i in $(seq 1 30); do
+					if ${pkgs.bluez}/bin/bluetoothctl show | grep -q "Powered: yes"; then
+						exit 0
+					fi
+					${pkgs.bluez}/bin/bluetoothctl power on
+					sleep 2
+				done
+			'';
+		};
 	};
 }

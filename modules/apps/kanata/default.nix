@@ -15,6 +15,8 @@
 				"input"
 				"uinput"
 			];
+			Restart = "on-failure";
+			RestartSec = "5s";
 		};
 
 		services.kanata = {

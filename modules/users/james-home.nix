@@ -34,7 +34,7 @@
 		tmux
 		nvim
 		devtools
-		ai
+		agents
 	]);
 
 	desktopApps = with self.homeModules; [

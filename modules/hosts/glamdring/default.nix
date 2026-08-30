@@ -9,7 +9,6 @@
 			nvidia-1080ti
 			james
 			steam
-			ai
 		] ++ [
 			inputs.jovian.nixosModules.default
 		];

@@ -9,7 +9,7 @@
 			amd-gpu
 			james
 			steam
-			ai
+			llama-cpp
 		];
 	};
 }

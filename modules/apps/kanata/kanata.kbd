@@ -1,5 +1,6 @@
 (defcfg
   process-unmapped-keys yes
+  linux-continue-if-no-devs-found yes
   linux-dev-names-exclude (
     "DPB Ferris sweep"
     "DPB Ferris sweep Consumer Control"

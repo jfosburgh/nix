@@ -19,3 +19,7 @@ alias bb='s5cmd --endpoint-url https://s3.us-east-005.backblazeb2.com --credenti
 # Cleanup
 alias nixos-gc='sudo nix-collect-garbage -d'
 alias hm-gc='home-manager expire-generations "-1 min" && nix-collect-garbage -d'
+
+# llama-cpp
+alias llama-up='sudo systemctl start llama-cpp'
+alias llama-down='sudo systemctl stop llama-cpp'

@@ -13,7 +13,7 @@
 		};
 	};
 
-	flake.nixosModules.hyprland = { pkgs, ... }: {
+	flake.nixosModules.hyprland = { pkgs, lib, config, ... }: {
 		nixpkgs.overlays = [ self.overlays.hyprland-glaze-fix ];
 
 		programs.hyprland.enable = true;
@@ -24,13 +24,21 @@
 		services.gvfs.enable = true;
 		services.udev.packages = [ pkgs.swayosd ];
 
-		environment.sessionVariables = {
-			NIXOS_OZONE_WL = "1";
-			MOZ_ENABLE_WAYLAND = "1";
-			XDG_CURRENT_DESKTOP = "Hyprland";
-			XDG_SESSION_TYPE = "wayland";
-			TERMINAL = "ghostty";
-		};
+		# GNOME/KDE launch ibus themselves; other desktops (including Hyprland) get it
+		# via this XDG autostart entry, which nags about not being a "real" desktop
+		# session under Wayland. Shadow it (earlier in XDG_CONFIG_DIRS than the
+		# package-provided one) to skip it under Hyprland too.
+		environment.etc."xdg/autostart/ibus-daemon.desktop" = lib.mkIf
+			(config.i18n.inputMethod.enable && config.i18n.inputMethod.type == "ibus")
+			{
+				text = ''
+					[Desktop Entry]
+					Name=IBus
+					Type=Application
+					Exec=${config.i18n.inputMethod.package}/bin/ibus-daemon --daemonize --xim
+					NotShowIn=GNOME;KDE;Hyprland;
+				'';
+			};
 	};
 
 	flake.homeModules.hyprland = { pkgs, config, dotfilesRoot, ... }: {
