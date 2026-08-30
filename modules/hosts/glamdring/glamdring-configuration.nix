@@ -4,12 +4,11 @@
 
 		networking.hostName = "glamdring";
 
-		jovian.steam = {
+		services.displayManager.autoLogin = {
 			enable = true;
-			autoStart = true;
 			user = "james";
-			desktopSession = "hyprland-uwsm";
 		};
+		services.displayManager.defaultSession = "hyprland-uwsm";
 
 		services.logind.settings.Login.HandlePowerKeyLongPress = "hibernate";
 	};

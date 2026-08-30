@@ -15,10 +15,6 @@
 	  url = "github:youwen5/zen-browser-flake";
 	  inputs.nixpkgs.follows = "nixpkgs";
 	};
-	jovian = {
-	  url = "github:Jovian-Experiments/Jovian-NixOS";
-	  inputs.nixpkgs.follows = "nixpkgs";
-	};
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
