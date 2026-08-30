@@ -10,6 +10,7 @@
 			james
 			steam
 			llama-cpp
+			agents
 		];
 	};
 }
