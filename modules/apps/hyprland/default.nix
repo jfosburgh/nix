@@ -73,6 +73,11 @@
 				runtimeInputs = [ ghostty uwsm ];
 				text = builtins.readFile ./scripts/launch-floating-terminal-keepalive;
 			})
+
+			(writeShellApplication {
+				name = "hyprpolkitagent";
+				text = "exec ${hyprpolkitagent}/libexec/hyprpolkitagent";
+			})
 		];
 
 		fonts.fontconfig.enable = true;
