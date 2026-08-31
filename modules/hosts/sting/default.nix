@@ -8,6 +8,7 @@
 			sting-hardware
 			amd-gpu
 			james
+			nix-ld
 			agents
 		];
 	};

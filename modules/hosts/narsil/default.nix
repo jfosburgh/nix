@@ -8,6 +8,7 @@
 			narsil-hardware
 			amd-gpu
 			james
+			nix-ld
 			steam
 			llama-cpp
 			agents
