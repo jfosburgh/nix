@@ -1,5 +1,5 @@
 # TODO: figure out what of this is actually needed r.e. unfree
-{ inputs, ... }: {
+{ inputs, self, ... }: {
 	perSystem = { config, lib, system, ... }: {
 		_module.args.unfreePkgs = import inputs.nixpkgs {
 			inherit system;
@@ -8,6 +8,12 @@
 
 		_module.args.pkgs = import inputs.nixpkgs {
 			inherit system;
+		};
+
+		legacyPackages = import inputs.nixpkgs {
+			inherit system;
+			config.allowUnfree = true;
+			overlays = [ self.overlays.hyprland-glaze-fix ];
 		};
 	};
 

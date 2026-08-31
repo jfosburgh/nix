@@ -32,3 +32,15 @@ c2f() {
   fi
   wl-paste > "$1"
 }
+
+deploy-pinas() {
+  local flake="/home/james/nix"
+  local host="james@192.168.1.103"
+  local hm_out="/tmp/hm-pinas-result"
+
+  nixos-rebuild boot --flake "$flake#pinas" --target-host "$host" --build-host localhost --elevate=sudo --ask-elevate-password &&
+  nix build "$flake#homeConfigurations.\"james@pinas\".activationPackage" -o "$hm_out" &&
+  nix copy --to "ssh://$host" "$hm_out" &&
+  ssh "$host" "$(readlink -f "$hm_out")/activate" &&
+  echo "pinas: new NixOS generation set for next boot — reboot manually when ready (ssh $host sudo reboot)"
+}

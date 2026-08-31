@@ -1,11 +1,7 @@
 { self, inputs, ... }: let
 	dotfilesRoot = "/home/james/nix";
 
-	pkgs = import inputs.nixpkgs {
-		system = "x86_64-linux";
-		config.allowUnfree = true;
-		overlays = [ self.overlays.hyprland-glaze-fix ];
-	};
+	mkPkgs = system: self.legacyPackages.${system};
 
 	base = { ... }: {
 		home.username = "james";
@@ -50,15 +46,17 @@
 		vintagestory
 	];
 
-	mkProfile = modules: inputs.home-manager.lib.homeManagerConfiguration {
-		inherit pkgs modules;
+	mkProfile = { modules, system ? "x86_64-linux" }: inputs.home-manager.lib.homeManagerConfiguration {
+		pkgs = mkPkgs system;
+		inherit modules;
 		extraSpecialArgs = { inherit dotfilesRoot; };
 	};
 in {
 	flake.homeConfigurations = {
-		"james@headless" = mkProfile common;
-		"james@laptop" = mkProfile (common ++ desktopApps);
-		"james@desktop" = mkProfile (common ++ desktopApps ++ desktopOnly);
-		"james@steammachine" = mkProfile (common ++ desktopApps ++ (with self.homeModules; [ steam ]));
+		"james@headless" = mkProfile { modules = common; };
+		"james@pinas" = mkProfile { modules = common; system = "aarch64-linux"; };
+		"james@laptop" = mkProfile { modules = common ++ desktopApps; };
+		"james@desktop" = mkProfile { modules = common ++ desktopApps ++ desktopOnly; };
+		"james@steammachine" = mkProfile { modules = common ++ desktopApps ++ (with self.homeModules; [ steam ]); };
 	};
 }

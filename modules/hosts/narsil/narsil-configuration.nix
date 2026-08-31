@@ -4,6 +4,8 @@
 
 		networking.hostName = "narsil";
 
+		boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
 		services.displayManager.autoLogin = {
 			enable = true;
 			user = "james";
