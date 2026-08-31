@@ -40,6 +40,7 @@
 		helium
 		vlc
 		hyprland
+		localsend
 	];
 
 	desktopOnly = with self.homeModules; [

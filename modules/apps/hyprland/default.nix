@@ -19,6 +19,8 @@
 		programs.hyprland.enable = true;
 		programs.hyprland.withUWSM = true;
 
+		programs.hyprlock.enable = true;
+
 		xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
 		services.gvfs.enable = true;
@@ -43,8 +45,6 @@
 
 	flake.homeModules.hyprland = { pkgs, config, dotfilesRoot, ... }: {
 		home.packages = with pkgs; [
-			hypridle
-			hyprlock
 			hyprpaper
 			hyprsunset
 			hyprshot
