@@ -14,15 +14,25 @@ for _, v in ipairs(envVars) do
 	hl.env(v[1], v[2])
 end
 
--- env = LIBVA_DRIVER_NAME,nvidia
--- env = __GLX_VENDOR_LIBRARY_NAME,nvidia
--- env = NVD_BACKEND,direct
--- env = __GL_VRR_ALLOWED,0
+-- glamdring's 1080ti (Pascal) predates GSP firmware (Turing+), so it needs the
+-- "egl" backend, not "direct" -- that mismatch is likely why these were
+-- previously commented out. Config is shared across hosts, so gate on
+-- hostname rather than setting these unconditionally and breaking OpenGL on
+-- the AMD-only machines.
+local function hostname()
+	local file = io.open("/proc/sys/kernel/hostname", "r")
+	if not file then
+		return ""
+	end
+	local name = file:read("*l") or ""
+	file:close()
+	return name
+end
 
--- -- One of the following caused black screen
--- env = WLR_DRM_NO_ATOMIC,1
--- env = __GL_GSYNC_ALLOWED,0
--- env = AQ_NO_MODIFIERS,1
+if hostname() == "glamdring" then
+	hl.env("NVD_BACKEND", "egl")
+	hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+end
 
 hl.config({
 	cursor = {
