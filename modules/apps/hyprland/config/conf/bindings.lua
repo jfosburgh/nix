@@ -2,7 +2,11 @@ local mainMod = "SUPER"
 local terminal = "ghostty"
 local browser = "zen-browser"
 local fileManager = "nautilus"
-local menu = "~/.config/rofi/launchers/type-1/launcher.sh &"
+-- Plain `pkill quickshell` (not `-f`) matches by process name, not full
+-- command line -- `-f` would match the pattern text against this very
+-- shell's own argv (which contains the pattern as a literal string) and kill
+-- itself before ever launching anything.
+local menu = "pkill quickshell || qs -c app-launcher"
 local webApp = "helium-browser"
 local floatTerm = "launch-floating-terminal"
 
@@ -29,7 +33,7 @@ hl.bind(key("SHIFT + B"), hl.dsp.exec_cmd("pkill kanata || kanata"))
 hl.bind(key("I"), hl.dsp.exec_cmd("pkill hypridle || hypridle"))
 hl.bind(key("T"), hl.dsp.exec_cmd("launch-floating-terminal-keepalive"))
 hl.bind(key("X"), hl.dsp.workspace.move({ monitor = "+1" }))
-hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd("cliphist list | rofi -dmenu | cliphist decode | wl-copy"))
+hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd("qs -c clipboard-picker"))
 
 -- Web-app shortcuts
 local webApps = {

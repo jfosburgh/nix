@@ -4,9 +4,9 @@
   ...
 }: let
   # Catppuccin Macchiato. Single source of truth for hyprlock, Hyprland window
-  # borders, waybar, mako, and rofi -- generated into ~/.config/theme/ in
-  # several formats since each consumer's config format has its own (or no)
-  # include mechanism. Order matches the upstream palette listing.
+  # borders, waybar, and mako -- generated into ~/.config/theme/ in several
+  # formats since each consumer's config format has its own (or no) include
+  # mechanism. Order matches the upstream palette listing.
   macchiato = [
     {
       name = "rosewater";
@@ -177,7 +177,6 @@ in {
       hyprpaper
       hyprsunset
       hyprshot
-      rofi
       waybar
       swayosd
       mako
@@ -187,6 +186,7 @@ in {
       bluetui
       wiremix
       pamixer
+      quickshell
 
       inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
 
@@ -213,6 +213,26 @@ in {
 
     fonts.fontconfig.enable = true;
 
+    # bluetui and wiremix are TUI-only tools nixpkgs ships with no .desktop
+    # file, so they're invisible to anything reading DesktopEntries (like the
+    # quickshell launcher). terminal = true gets them the floating-terminal
+    # treatment shell.qml gives Terminal=true entries.
+    xdg.desktopEntries.bluetui = {
+      name = "Bluetui";
+      genericName = "Bluetooth Manager";
+      exec = "bluetui";
+      terminal = true;
+      categories = ["System" "Network"];
+    };
+
+    xdg.desktopEntries.wiremix = {
+      name = "Wiremix";
+      genericName = "Audio Mixer";
+      exec = "wiremix";
+      terminal = true;
+      categories = ["System" "AudioVideo"];
+    };
+
     gtk.enable = true;
     gtk.font.name = "IosevkaTerm Nerd Font";
 
@@ -231,14 +251,14 @@ in {
     xdg.configFile."backgrounds/default".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds/default";
 
-    xdg.configFile.rofi.source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/rofi";
+    xdg.configFile.quickshell.source =
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/quickshell";
 
     xdg.configFile.waybar.source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/waybar";
 
     xdg.configFile."theme/macchiato.conf".text =
-      lib.concatMapStringsSep "\n" (c: "$${c.name} = rgb(${c.hex})\n$${c.name}Alpha = ${c.hex}\n") macchiato;
+      lib.concatMapStringsSep "\n" (c: "\$${c.name} = rgb(${c.hex})\n\$${c.name}Alpha = ${c.hex}\n") macchiato;
 
     xdg.configFile."theme/macchiato.lua".text =
       "return {\n"
@@ -248,20 +268,6 @@ in {
     xdg.configFile."theme/macchiato.css".text =
       lib.concatMapStringsSep "\n" (c: "@define-color ${c.name} #${c.hex};") macchiato
       + "\n";
-
-    xdg.configFile."theme/macchiato.rasi".text = ''
-      * {
-      ${lib.concatMapStringsSep "\n" (c: "  ${c.name}: #${c.hex};") macchiato}
-
-        background:      #${color "base"};
-        background-alt:  #${color "surface0"};
-        foreground:      #${color "text"};
-        foreground-alt:  #${color "subtext0"};
-        selected:        #${color "mauve"};
-        active:          #${color "green"};
-        urgent:          #${color "red"};
-      }
-    '';
 
     # mako's config format has no include directive, so it's fully generated
     # rather than templated in place like the others.
