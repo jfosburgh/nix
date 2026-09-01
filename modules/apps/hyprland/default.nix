@@ -2,7 +2,118 @@
   self,
   inputs,
   ...
-}: {
+}: let
+  # Catppuccin Macchiato. Single source of truth for hyprlock, Hyprland window
+  # borders, waybar, mako, and rofi -- generated into ~/.config/theme/ in
+  # several formats since each consumer's config format has its own (or no)
+  # include mechanism. Order matches the upstream palette listing.
+  macchiato = [
+    {
+      name = "rosewater";
+      hex = "f4dbd6";
+    }
+    {
+      name = "flamingo";
+      hex = "f0c6c6";
+    }
+    {
+      name = "pink";
+      hex = "f5bde6";
+    }
+    {
+      name = "mauve";
+      hex = "c6a0f6";
+    }
+    {
+      name = "red";
+      hex = "ed8796";
+    }
+    {
+      name = "maroon";
+      hex = "ee99a0";
+    }
+    {
+      name = "peach";
+      hex = "f5a97f";
+    }
+    {
+      name = "yellow";
+      hex = "eed49f";
+    }
+    {
+      name = "green";
+      hex = "a6da95";
+    }
+    {
+      name = "teal";
+      hex = "8bd5ca";
+    }
+    {
+      name = "sky";
+      hex = "91d7e3";
+    }
+    {
+      name = "sapphire";
+      hex = "7dc4e4";
+    }
+    {
+      name = "blue";
+      hex = "8aadf4";
+    }
+    {
+      name = "lavender";
+      hex = "b7bdf8";
+    }
+    {
+      name = "text";
+      hex = "cad3f5";
+    }
+    {
+      name = "subtext1";
+      hex = "b8c0e0";
+    }
+    {
+      name = "subtext0";
+      hex = "a5adcb";
+    }
+    {
+      name = "overlay2";
+      hex = "939ab7";
+    }
+    {
+      name = "overlay1";
+      hex = "8087a2";
+    }
+    {
+      name = "overlay0";
+      hex = "6e738d";
+    }
+    {
+      name = "surface2";
+      hex = "5b6078";
+    }
+    {
+      name = "surface1";
+      hex = "494d64";
+    }
+    {
+      name = "surface0";
+      hex = "363a4f";
+    }
+    {
+      name = "base";
+      hex = "24273a";
+    }
+    {
+      name = "mantle";
+      hex = "1e2030";
+    }
+    {
+      name = "crust";
+      hex = "181926";
+    }
+  ];
+in {
   flake.overlays.hyprland-glaze-fix = final: prev: {
     hyprland = prev.hyprland.override {
       glaze = prev.glaze.overrideAttrs (_: {
@@ -55,10 +166,13 @@
 
   flake.homeModules.hyprland = {
     pkgs,
+    lib,
     config,
     dotfilesRoot,
     ...
-  }: {
+  }: let
+    color = name: (lib.findFirst (c: c.name == name) null macchiato).hex;
+  in {
     home.packages = with pkgs; [
       hyprpaper
       hyprsunset
@@ -123,7 +237,46 @@
     xdg.configFile.waybar.source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/waybar";
 
-    xdg.configFile.mako.source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/mako";
+    xdg.configFile."theme/macchiato.conf".text =
+      lib.concatMapStringsSep "\n" (c: "$${c.name} = rgb(${c.hex})\n$${c.name}Alpha = ${c.hex}\n") macchiato;
+
+    xdg.configFile."theme/macchiato.lua".text =
+      "return {\n"
+      + lib.concatMapStringsSep "\n" (c: "  ${c.name} = \"rgb(${c.hex})\",") macchiato
+      + "\n}\n";
+
+    xdg.configFile."theme/macchiato.css".text =
+      lib.concatMapStringsSep "\n" (c: "@define-color ${c.name} #${c.hex};") macchiato
+      + "\n";
+
+    xdg.configFile."theme/macchiato.rasi".text = ''
+      * {
+      ${lib.concatMapStringsSep "\n" (c: "  ${c.name}: #${c.hex};") macchiato}
+
+        background:      #${color "base"};
+        background-alt:  #${color "surface0"};
+        foreground:      #${color "text"};
+        foreground-alt:  #${color "subtext0"};
+        selected:        #${color "mauve"};
+        active:          #${color "green"};
+        urgent:          #${color "red"};
+      }
+    '';
+
+    # mako's config format has no include directive, so it's fully generated
+    # rather than templated in place like the others.
+    xdg.configFile."mako/config".text = ''
+      # Colors
+      background-color=#${color "base"}
+      text-color=#${color "text"}
+      border-color=#${color "mauve"}
+      border-radius=4
+      progress-color=over #${color "surface0"}
+
+      default-timeout=5000
+
+      [urgency=high]
+      border-color=#${color "peach"}
+    '';
   };
 }

@@ -1,9 +1,8 @@
-@define-color foreground #cdd6f4;
-@define-color background #181824;
+@import url("../theme/macchiato.css");
 
 * {
   background-color: rgba(43, 48, 59, 0);
-  color: @foreground;
+  color: @text;
 
   border: none;
   border-radius: 0;
@@ -13,8 +12,8 @@
 }
 
 window#waybar {
-    background: rgba(38, 39, 61, 0.75);
-    border: 2px solid rgb(91, 96, 120);
+    background: alpha(@base, 0.75);
+    border: 2px solid @surface2;
 	border-radius: 6px;
 }
 
