@@ -41,6 +41,7 @@
 		vlc
 		hyprland
 		localsend
+		beancount
 	];
 
 	desktopOnly = with self.homeModules; [
