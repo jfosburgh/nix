@@ -1,4 +1,8 @@
-{self, ...}: {
+{
+  self,
+  inputs,
+  ...
+}: {
   flake.overlays.hyprland-glaze-fix = final: prev: {
     hyprland = prev.hyprland.override {
       glaze = prev.glaze.overrideAttrs (_: {
@@ -69,6 +73,8 @@
       bluetui
       wiremix
       pamixer
+
+      inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
 
       nerd-fonts.iosevka-term
       nerd-fonts.symbols-only
