@@ -1,0 +1,5 @@
+{
+	"workspace.library": ["./meta"],
+	"diagnostics.globals": ["hl"],
+	"runtime.version": "LuaJIT"
+}

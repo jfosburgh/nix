@@ -1,0 +1,7 @@
+require("./conf/autostart.lua")
+require("./conf/bindings.lua")
+require("./conf/envs.lua")
+require("./conf/input.lua")
+require("./conf/looknfeel.lua")
+require("./conf/monitors.lua")
+require("./conf/rules.lua")

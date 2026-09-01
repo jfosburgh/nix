@@ -1,0 +1,5 @@
+hl.window_rule({ name = "float-dial", match = { class = "com.boondax.dial" }, float = true })
+hl.window_rule({ name = "float-odincraft", match = { class = "com.jfosburgh.odincraft" }, float = true })
+hl.window_rule({ name = "float-netrs-ui", match = { class = "org.netrs.ui" }, float = true })
+hl.window_rule({ name = "float-floatterm", match = { title = "FloatTerm" }, float = true })
+hl.window_rule({ name = "steam-big-picture-fullscreen", match = { class = "steam", title = ".*Big Picture.*" }, fullscreen = true })
