@@ -9,12 +9,10 @@ vim.keymap.set("n", "<leader>,", "<CMD>FzfLua buffers<CR>")
 vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>")
 
 vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, { remap = true })
-vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { remap = true })
+vim.keymap.set("n", "<leader>lf", function()
+	require("conform").format({ async = true, lsp_format = "fallback" })
+end, { desc = "Format buffer" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { remap = true })
-
-vim.keymap.set("i", "<c-space>", function()
-	vim.lsp.completion.get()
-end)
 
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })

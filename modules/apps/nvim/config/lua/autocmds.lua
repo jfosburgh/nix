@@ -14,30 +14,5 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
-vim.api.nvim_create_autocmd("LspAttach", {
-	group = vim.api.nvim_create_augroup("my.lsp", {}),
-	callback = function(args)
-		local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-		if client:supports_method("textDocument/completion") then
-			vim.lsp.completion.enable(true, client.id, args.buf, {
-				autotrigger = false,
-				convert = function(item)
-					return { abbr = item.label:gsub("%b()", "") }
-				end,
-			})
-		end
-	end,
-})
-
-local blacklist = { "shaderslang" }
-
--- vim.api.nvim_create_autocmd("BufWritePre", {
--- 	group = vim.api.nvim_create_augroup("format-on-save", { clear = true }),
--- 	callback = function(args)
--- 		local f = vim.bo[args.buf].filetype
--- 		if vim.tbl_contains(blacklist, f) then
--- 			return
--- 		end
--- 		vim.lsp.buf.format({ bufnr = args.buf })
--- 	end,
--- })
+-- Completion is handled by blink.cmp's own "lsp" source, so no LspAttach
+-- hook is needed to enable native vim.lsp.completion here.

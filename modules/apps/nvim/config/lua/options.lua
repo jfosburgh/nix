@@ -42,3 +42,7 @@ vim.opt.smartcase = true
 
 vim.opt.winborder = "rounded"
 vim.cmd("set completeopt+=fuzzy,menuone,popup,noselect")
+
+-- Per-repo .nvim.lua files enable LSPs/formatters for tools devenv puts on
+-- PATH. Neovim prompts to trust each one the first time (:trust).
+vim.opt.exrc = true
