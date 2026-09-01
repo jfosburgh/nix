@@ -2,4 +2,24 @@ theme = "Catppuccin Macchiato"
 font-family = "IosevkaTerm Nerd Font"
 font-size = 14
 
+# Without this, leftover pixels from window-height not being an exact
+# multiple of the cell height all pile up on one edge (bottom/right) instead
+# of splitting evenly -- looked like extra dead space under the tmux status
+# line specifically because that's the bottom-most row.
+window-padding-balance = true
+
+# Default (true) only copies a selection to the primary/selection clipboard
+# (middle-click paste). "clipboard" also copies to the real system
+# clipboard, so a selection is immediately paste-able with a normal Ctrl+V.
+copy-on-select = "clipboard"
+
 keybind = ctrl+f=text:tmux-sessionizer\n
+
+# Ctrl+V is unbound by default, so it passes through as a raw byte to the
+# shell -- and zsh binds Ctrl+V to quoted-insert (insert the next input
+# literally, bypassing bracketed-paste detection) by default. Pressing
+# Ctrl+V then Ctrl+Shift+V armed that literal-insert mode right before the
+# paste landed, so the bracketed-paste markers got inserted as raw text
+# instead of being intercepted. Binding it to an actual paste here both
+# makes Ctrl+V work and stops it from corrupting the next paste.
+keybind = ctrl+v=paste_from_clipboard
