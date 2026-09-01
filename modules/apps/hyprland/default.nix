@@ -238,8 +238,8 @@ in {
 
     home.pointerCursor = {
       enable = true;
-      package = pkgs.catppuccin-cursors.macchiatoMauve;
-      name = "catppuccin-macchiato-mauve-cursors";
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Original-Classic";
       size = 24;
       gtk.enable = true;
       hyprcursor.enable = true;
