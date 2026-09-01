@@ -1,7 +1,7 @@
-{  ... }: {
-	flake.nixosModules.network = { ... }: {
-		networking.networkmanager.enable = true;
+{...}: {
+  flake.nixosModules.network = {...}: {
+    networking.networkmanager.enable = true;
 
-		services.openssh.enable = true;
-	};
+    services.openssh.enable = true;
+  };
 }

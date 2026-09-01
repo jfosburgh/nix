@@ -1,7 +1,7 @@
-{ ... }: {
-	flake.homeModules.vintagestory = { pkgs, ... }: {
-		home.packages = [
-			pkgs.vintagestory
-		];
-	};
+{...}: {
+  flake.homeModules.vintagestory = {pkgs, ...}: {
+    home.packages = [
+      pkgs.vintagestory
+    ];
+  };
 }

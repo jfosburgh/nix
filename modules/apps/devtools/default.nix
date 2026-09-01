@@ -1,20 +1,20 @@
-{ ... }: {
-	flake.homeModules.devtools = { pkgs, ... }: {
-		home.packages = with pkgs; [
-			ripgrep
-			fd
-			fzf
-			eza
-			bat
-			rsync
-			jq
-			btop
-			nvtopPackages.full
+{...}: {
+  flake.homeModules.devtools = {pkgs, ...}: {
+    home.packages = with pkgs; [
+      ripgrep
+      fd
+      fzf
+      eza
+      bat
+      rsync
+      jq
+      btop
+      nvtopPackages.full
 
-			devenv
+      devenv
 
-			man-pages
-			man-db
-		];
-	};
+      man-pages
+      man-db
+    ];
+  };
 }

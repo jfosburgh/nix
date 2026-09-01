@@ -1,5 +1,5 @@
-{ ... }: {
-	flake.homeModules.localsend = { pkgs, ... }: {
-		home.packages = [ pkgs.localsend ];
-	};
+{...}: {
+  flake.homeModules.localsend = {pkgs, ...}: {
+    home.packages = [pkgs.localsend];
+  };
 }

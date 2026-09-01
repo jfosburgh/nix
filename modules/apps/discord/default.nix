@@ -1,7 +1,7 @@
-{ ... }: {
-	flake.homeModules.discord = { pkgs, ... }: {
-		home.packages = [
-			(pkgs.discord.override { withVencord = true; })
-		];
-	};
+{...}: {
+  flake.homeModules.discord = {pkgs, ...}: {
+    home.packages = [
+      (pkgs.discord.override {withVencord = true;})
+    ];
+  };
 }
