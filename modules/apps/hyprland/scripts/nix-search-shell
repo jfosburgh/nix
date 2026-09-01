@@ -1,0 +1,2 @@
+pkg=$(nix-search-tv print --indexes nixpkgs | fzf --preview "nix-search-tv preview {}")
+[ -n "$pkg" ] && exec nix shell "nixpkgs#$pkg"

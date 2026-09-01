@@ -209,6 +209,12 @@ in {
         name = "hyprpolkitagent";
         text = "exec ${hyprpolkitagent}/libexec/hyprpolkitagent";
       })
+
+      (writeShellApplication {
+        name = "nix-search-shell";
+        runtimeInputs = [nix-search-tv fzf];
+        text = builtins.readFile ./scripts/nix-search-shell;
+      })
     ];
 
     fonts.fontconfig.enable = true;
