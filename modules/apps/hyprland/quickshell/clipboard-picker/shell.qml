@@ -47,10 +47,21 @@ FloatingWindow {
 		}
 	}
 
+	// POSIX single-quote escaping for embedding in a shell command --
+	// JSON.stringify is the wrong tool here: it renders the real tab between
+	// cliphist's id and preview text as the two literal characters "\t",
+	// which bash's -c (given a plain double-quoted string) does not
+	// interpret back into a tab. cliphist decode then can't find the id
+	// separator, fails, and wl-copy happily copies its empty output --
+	// which reads as "nothing happens" and "clipboard got cleared".
+	function shellQuote(str) {
+		return "'" + str.replace(/'/g, "'\\''") + "'";
+	}
+
 	function selectEntry(line) {
 		if (!line)
 			return;
-		Quickshell.execDetached(["bash", "-c", "cliphist decode <<< " + JSON.stringify(line) + " | wl-copy"]);
+		Quickshell.execDetached(["bash", "-c", "cliphist decode <<< " + shellQuote(line) + " | wl-copy"]);
 		Qt.quit();
 	}
 
