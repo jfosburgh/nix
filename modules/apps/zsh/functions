@@ -33,6 +33,28 @@ c2f() {
   wl-paste > "$1"
 }
 
+nrs() {
+  sudo nixos-rebuild switch --flake "/home/james/nix#$(hostname)"
+}
+
+hms() {
+  local cache="$HOME/.cache/hms-profile"
+  local profile="$1"
+
+  if [[ -n "$profile" ]]; then
+    mkdir -p "$(dirname "$cache")"
+    echo "$profile" > "$cache"
+  elif [[ -f "$cache" ]]; then
+    profile="$(<"$cache")"
+  else
+    echo "hms: no profile remembered yet -- run 'hms <profile>' once (e.g. hms laptop)" >&2
+    echo "available: headless, pinas, laptop, desktop, steammachine" >&2
+    return 1
+  fi
+
+  home-manager switch --flake "/home/james/nix#james@$profile"
+}
+
 deploy-pinas() {
   local flake="/home/james/nix"
   local host="james@192.168.1.103"
