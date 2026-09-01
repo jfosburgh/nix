@@ -100,6 +100,7 @@
     fonts.fontconfig.enable = true;
 
     gtk.enable = true;
+    gtk.font.name = "IosevkaTerm Nerd Font";
 
     home.pointerCursor = {
       enable = true;
