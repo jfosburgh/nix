@@ -61,9 +61,14 @@ hl.config({
 
 hl.curve("myBezier", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
 
-hl.animation({ leaf = "windows", enabled = true, speed = 3, bezier = "myBezier" })
-hl.animation({ leaf = "windowsOut", enabled = false, speed = 3, bezier = "default", style = "popin 80%" })
-hl.animation({ leaf = "border", enabled = false, speed = 3, bezier = "default" })
-hl.animation({ leaf = "borderangle", enabled = false, speed = 3, bezier = "default" })
-hl.animation({ leaf = "fade", enabled = true, speed = 3, bezier = "default" })
-hl.animation({ leaf = "workspaces", enabled = false, speed = 1, bezier = "default" })
+local animations = {
+	{ leaf = "windows", enabled = true, speed = 3, bezier = "myBezier" },
+	{ leaf = "windowsOut", enabled = false, speed = 3, bezier = "default", style = "popin 80%" },
+	{ leaf = "border", enabled = false, speed = 3, bezier = "default" },
+	{ leaf = "borderangle", enabled = false, speed = 3, bezier = "default" },
+	{ leaf = "fade", enabled = true, speed = 3, bezier = "default" },
+	{ leaf = "workspaces", enabled = false, speed = 1, bezier = "default" },
+}
+for _, anim in ipairs(animations) do
+	hl.animation(anim)
+end
