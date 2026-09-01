@@ -1,0 +1,35 @@
+{
+  "providers": {
+    "llama.cpp": {
+      "baseUrl": "http://127.0.0.1:8080/v1",
+      "api": "openai-completions",
+      "apiKey": "llama-cpp",
+      "models": [
+        {
+          "id": "qwen38-q3",
+          "contextWindow": 131072,
+          "maxTokens": 32768
+        }
+      ],
+      "modelOverrides": {
+        "qwen38-q3": {
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "minimal": null,
+            "low": "low",
+            "medium": "medium",
+            "high": null,
+            "xhigh": "xhigh"
+          },
+          "compat": {
+            "thinkingFormat": "chat-template",
+            "chatTemplateKwargs": {
+              "enable_thinking": { "$var": "thinking.enabled" },
+              "reasoning_effort": { "$var": "thinking.effort" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

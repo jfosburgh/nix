@@ -8,45 +8,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helium.url = "github:AlvaroParker/helium-nix";
-	niri.url = "github:sodiboo/niri-flake";
-	noctalia.url = "github:noctalia-dev/noctalia/cachix";
+	flake-parts.url = "github:hercules-ci/flake-parts";
+	import-tree.url = "github:vic/import-tree";
+	wrappers.url = "github:BirdeeHub/nix-wrapper-modules";
+	zen-browser = {
+	  url = "github:youwen5/zen-browser-flake";
+	  inputs.nixpkgs.follows = "nixpkgs";
+	};
   };
 
-  outputs = { self, nixpkgs, home-manager, helium, niri, noctalia, ... }@inputs:
-  let
-    mkHost = { hostname, system ? "x86_64-linux" }: nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = { inherit inputs self; };
-      modules = [
-        ./hosts/${hostname}/default.nix
-      ];
-    };
-
-    mkHome = { username, system ? "x86_64-linux", modules }: home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.${system};
-      extraSpecialArgs = { inherit inputs self; };
-      modules = [
-        {
-          home = {
-            inherit username;
-            homeDirectory = if nixpkgs.lib.hasSuffix "darwin" system then "/Users/${username}" else "/home/${username}";
-          };
-        }
-      ] ++ modules;
-    };
-  in {
-    nixosConfigurations = {
-      glamdring  = mkHost { hostname = "glamdring"; };
-    };
-
-    homeConfigurations = {
-      "desktop" = mkHome {
-        username = "james";
-        system = "x86_64-linux";
-        modules = [
-          ./home/desktop.nix
-        ];
-      };
-    };
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    imports = [
+	  inputs.home-manager.flakeModules.home-manager
+	  (inputs.import-tree ./modules)
+	];
   };
 }

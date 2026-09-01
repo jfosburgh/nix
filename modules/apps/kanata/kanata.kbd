@@ -1,0 +1,46 @@
+(defcfg
+  process-unmapped-keys yes
+  linux-continue-if-no-devs-found yes
+  linux-dev-names-exclude (
+    "DPB Ferris sweep"
+    "DPB Ferris sweep Consumer Control"
+    "DPB Ferris sweep System Control"
+    "Logitech Wireless Mouse MX Master 3"
+  )
+)
+
+(defsrc
+  caps a s d f j k l ;
+)
+
+(defvar
+  tap-time 150
+  hold-time 200
+)
+
+(defalias
+  ;; Home row mods
+  escctrl (tap-hold $tap-time $hold-time esc lmet)
+  a (tap-hold $tap-time $hold-time a lsft)
+  s (tap-hold $tap-time $hold-time s lctl)
+  d (tap-hold $tap-time $hold-time d lalt)
+  f (tap-hold $tap-time $hold-time f lmet)
+  j (tap-hold $tap-time $hold-time j rmet)
+  k (tap-hold $tap-time $hold-time k ralt)
+  l (tap-hold $tap-time $hold-time l rctl)
+  ; (tap-hold $tap-time $hold-time ; rsft)
+
+  ;; Layer toggle action (Super + K triggers disabled layer)
+  tog-off (layer-switch raw-passthrough)
+  tog-on  (layer-switch base)
+)
+
+;; Base Layer (Active Remaps)
+(deflayer base
+  @escctrl @a @s @d @f @j @k @l @;
+)
+
+;; Raw Passthrough Layer (Effectively disables Kanata bindings)
+(deflayer raw-passthrough
+  caps a s d f j k l ;
+)
