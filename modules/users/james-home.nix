@@ -37,6 +37,7 @@
       nvim
       devtools
       agents
+      direnv
     ]);
 
   desktopApps = with self.homeModules; [
