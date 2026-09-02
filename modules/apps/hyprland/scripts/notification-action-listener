@@ -1,0 +1,36 @@
+state_dir="${XDG_RUNTIME_DIR:-/tmp}/notification-exec"
+mkdir -p "$state_dir"
+
+# busctl's --json=short monitor output is pretty-printed (one JSON value
+# spanning many lines), not one-object-per-line, so it has to go through jq
+# once to get to a stream jq itself can read a value at a time from and
+# re-emit compact -- only then is it safe for the read loop below to treat
+# each line as a complete, parseable JSON object.
+busctl --user --json=short monitor org.freedesktop.Notifications 2>/dev/null |
+  jq --unbuffered -c '
+    select(.member == "ActionInvoked" or .member == "NotificationClosed")
+    | {member, id: .payload.data[0], action: (.payload.data[1] // empty)}
+  ' |
+  while IFS= read -r event; do
+    member=$(jq -r '.member' <<<"$event")
+    id=$(jq -r '.id' <<<"$event")
+    file="$state_dir/$id"
+
+    case $member in
+    ActionInvoked)
+      action=$(jq -r '.action' <<<"$event")
+      # mako can emit this more than once per click; the state file is
+      # removed after the first run, so a duplicate is just a no-op.
+      [[ $action == default && -f $file ]] || continue
+      mapfile -d '' -t argv <"$file"
+      rm -f "$file"
+      ((${#argv[@]} > 0)) || continue
+      setsid -f "${argv[@]}" >/dev/null 2>&1 &
+      ;;
+    NotificationClosed)
+      # Dismissed without a click (timeout, explicit dismiss, replaced) --
+      # drop the pending command so it never fires late against a stale file.
+      rm -f "$file"
+      ;;
+    esac
+  done

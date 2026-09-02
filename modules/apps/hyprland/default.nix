@@ -172,6 +172,11 @@ in {
     ...
   }: let
     color = name: (lib.findFirst (c: c.name == name) null macchiato).hex;
+    notificationActionListener = pkgs.writeShellApplication {
+      name = "notification-action-listener";
+      runtimeInputs = with pkgs; [systemd jq util-linux];
+      text = builtins.readFile ./scripts/notification-action-listener;
+    };
   in {
     home.packages = with pkgs; [
       hyprpaper
@@ -215,6 +220,14 @@ in {
         runtimeInputs = [nix-search-tv fzf];
         text = builtins.readFile ./scripts/nix-search-shell;
       })
+
+      (writeShellApplication {
+        name = "notification-send";
+        runtimeInputs = [systemd];
+        text = builtins.readFile ./scripts/notification-send;
+      })
+
+      notificationActionListener
     ];
 
     fonts.fontconfig.enable = true;
@@ -287,8 +300,26 @@ in {
 
       default-timeout=5000
 
+      on-button-left=invoke-default-action
+
       [urgency=high]
       border-color=#${color "peach"}
     '';
+
+    systemd.user.services.notification-action-listener = {
+      Unit = {
+        Description = "Run the --exec command of a notification-send toast on click";
+        PartOf = ["graphical-session.target"];
+      };
+
+      Service = {
+        ExecStart = "${notificationActionListener}/bin/notification-action-listener";
+        Restart = "on-failure";
+      };
+
+      Install = {
+        WantedBy = ["graphical-session.target"];
+      };
+    };
   };
 }
