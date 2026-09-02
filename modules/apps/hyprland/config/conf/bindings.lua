@@ -22,7 +22,7 @@ hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
 hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"), hl.dsp.window.fullscreen())
 hl.bind(key("B"), hl.dsp.exec_cmd("pkill waybar || waybar"))
-hl.bind(key("S"), hl.dsp.exec_cmd("hyprshot -m region"))
+hl.bind(key("S"), hl.dsp.exec_cmd("screenshot-region"))
 -- hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd("hyprshot -m window"))
 hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
 -- Fuzzy-search nixpkgs and drop into a nix shell with the selected package.

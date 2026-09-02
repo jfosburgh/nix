@@ -1,0 +1,32 @@
+outdir="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+mkdir -p "$outdir"
+
+filename="screenshot-$(date +%Y-%m-%d_%H-%M-%S).png"
+path="$outdir/$filename"
+
+# -s suppresses hyprshot's own notification (via notify-send, which isn't
+# installed here) since notification-send below replaces it with one that
+# opens satty on click. hyprshot can exit non-zero even after successfully
+# writing the file, so the real success signal is the file check below, not
+# the exit code -- `|| true` keeps that check reachable under set -e.
+hyprshot -m region -s -o "$outdir" -f "$filename" || true
+
+# hyprshot's own process can exit before the file is actually flushed to
+# disk, so a single immediate check can race a real, successful capture.
+# Poll briefly rather than assuming the first miss means cancellation.
+found=0
+for _ in $(seq 1 20); do
+  if [[ -f $path ]]; then
+    found=1
+    break
+  fi
+  sleep 0.1
+done
+
+# Selection cancelled (Escape), or hyprshot failed outright -- either way, no
+# file means nothing to notify about.
+((found)) || exit 0
+
+notification-send --app-name screenshot -u normal "Screenshot saved" "Click to annotate" \
+  --image "$path" \
+  --exec satty --filename "$path" --output-filename "$path" --copy-command wl-copy --early-exit save copy --floating-hack

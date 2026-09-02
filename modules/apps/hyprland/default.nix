@@ -177,11 +177,17 @@ in {
       runtimeInputs = with pkgs; [systemd jq util-linux];
       text = builtins.readFile ./scripts/notification-action-listener;
     };
+    notificationSend = pkgs.writeShellApplication {
+      name = "notification-send";
+      runtimeInputs = with pkgs; [systemd];
+      text = builtins.readFile ./scripts/notification-send;
+    };
   in {
     home.packages = with pkgs; [
       hyprpaper
       hyprsunset
       hyprshot
+      satty
       waybar
       swayosd
       mako
@@ -221,13 +227,15 @@ in {
         text = builtins.readFile ./scripts/nix-search-shell;
       })
 
-      (writeShellApplication {
-        name = "notification-send";
-        runtimeInputs = [systemd];
-        text = builtins.readFile ./scripts/notification-send;
-      })
+      notificationSend
 
       notificationActionListener
+
+      (writeShellApplication {
+        name = "screenshot-region";
+        runtimeInputs = [hyprshot satty notificationSend];
+        text = builtins.readFile ./scripts/screenshot-region;
+      })
     ];
 
     fonts.fontconfig.enable = true;

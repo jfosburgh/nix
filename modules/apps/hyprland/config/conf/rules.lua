@@ -15,4 +15,7 @@ hl.window_rule({ name = "float-portal-gtk", match = { class = "xdg-desktop-porta
 hl.window_rule({ name = "float-quickshell", match = { class = "org.quickshell" }, float = true })
 hl.window_rule({ name = "center-quickshell", match = { class = "org.quickshell" }, center = true })
 
+hl.window_rule({ name = "float-satty", match = { class = "com.gabm.satty" }, float = true })
+hl.window_rule({ name = "center-satty", match = { class = "com.gabm.satty" }, center = true })
+
 hl.window_rule({ name = "opacity-ghostty", match = { class = "com.mitchellh.ghostty" }, opacity = "0.92 0.85" })

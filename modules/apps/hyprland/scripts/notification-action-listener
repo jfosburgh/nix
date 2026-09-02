@@ -1,6 +1,27 @@
 state_dir="${XDG_RUNTIME_DIR:-/tmp}/notification-exec"
 mkdir -p "$state_dir"
 
+# Notify()'s reply carries the notification id, but ActionInvoked/NotificationClosed
+# only carry the id -- not who sent it. Correlating id back to a sender means also
+# watching the method_call/method_return pair: a Notify call's D-Bus "cookie" (its
+# message serial) comes back as "reply_cookie" on its reply, which carries the id in
+# its payload. sender_by_cookie bridges call to reply; sender_by_id then holds for as
+# long as the notification is on screen.
+declare -A sender_by_cookie
+declare -A sender_by_id
+
+# The connection that sent a still-open notification is only guaranteed to still be
+# around for apps that keep a persistent bus connection (i.e. actual GUI apps) --
+# which is also exactly the case where focusing a window makes sense. A one-shot
+# sender (a script using busctl/notification-send) has already disconnected, so this
+# just fails quietly and nothing happens, which is the desired behavior for these too.
+focus_sender() {
+  local sender=$1 pid
+  pid=$(busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus GetConnectionUnixProcessID s "$sender" 2>/dev/null | awk '{print $2}')
+  [[ $pid =~ ^[0-9]+$ ]] || return
+  hyprctl dispatch "hl.dsp.focus({ window = \"pid:$pid\" })" >/dev/null 2>&1
+}
+
 # busctl's --json=short monitor output is pretty-printed (one JSON value
 # spanning many lines), not one-object-per-line, so it has to go through jq
 # once to get to a stream jq itself can read a value at a time from and
@@ -8,29 +29,58 @@ mkdir -p "$state_dir"
 # each line as a complete, parseable JSON object.
 busctl --user --json=short monitor org.freedesktop.Notifications 2>/dev/null |
   jq --unbuffered -c '
-    select(.member == "ActionInvoked" or .member == "NotificationClosed")
-    | {member, id: .payload.data[0], action: (.payload.data[1] // empty)}
+    if .type == "method_call" and .member == "Notify" then
+      {type, cookie, sender}
+    elif .type == "method_return" and (.reply_cookie != null) then
+      {type, reply_cookie, id: .payload.data[0]}
+    elif .type == "signal" and (.member == "ActionInvoked" or .member == "NotificationClosed") then
+      {type: "signal", member, id: .payload.data[0], action: (.payload.data[1] // empty)}
+    else empty end
   ' |
   while IFS= read -r event; do
-    member=$(jq -r '.member' <<<"$event")
-    id=$(jq -r '.id' <<<"$event")
-    file="$state_dir/$id"
+    etype=$(jq -r '.type' <<<"$event")
 
-    case $member in
-    ActionInvoked)
-      action=$(jq -r '.action' <<<"$event")
-      # mako can emit this more than once per click; the state file is
-      # removed after the first run, so a duplicate is just a no-op.
-      [[ $action == default && -f $file ]] || continue
-      mapfile -d '' -t argv <"$file"
-      rm -f "$file"
-      ((${#argv[@]} > 0)) || continue
-      setsid -f "${argv[@]}" >/dev/null 2>&1 &
+    case $etype in
+    method_call)
+      cookie=$(jq -r '.cookie' <<<"$event")
+      sender=$(jq -r '.sender' <<<"$event")
+      sender_by_cookie[$cookie]=$sender
       ;;
-    NotificationClosed)
-      # Dismissed without a click (timeout, explicit dismiss, replaced) --
-      # drop the pending command so it never fires late against a stale file.
-      rm -f "$file"
+    method_return)
+      reply_cookie=$(jq -r '.reply_cookie' <<<"$event")
+      id=$(jq -r '.id' <<<"$event")
+      sender=${sender_by_cookie[$reply_cookie]:-}
+      unset "sender_by_cookie[$reply_cookie]"
+      [[ -n $sender ]] && sender_by_id[$id]=$sender
+      ;;
+    signal)
+      member=$(jq -r '.member' <<<"$event")
+      id=$(jq -r '.id' <<<"$event")
+      file="$state_dir/$id"
+
+      case $member in
+      ActionInvoked)
+        action=$(jq -r '.action' <<<"$event")
+        [[ $action == default ]] || continue
+
+        # mako can emit this more than once per click; the state file is
+        # removed after the first run, so a duplicate --exec is a no-op.
+        if [[ -f $file ]]; then
+          mapfile -d '' -t argv <"$file"
+          rm -f "$file"
+          ((${#argv[@]} > 0)) && setsid -f "${argv[@]}" >/dev/null 2>&1 &
+        fi
+
+        sender=${sender_by_id[$id]:-}
+        [[ -n $sender ]] && focus_sender "$sender"
+        ;;
+      NotificationClosed)
+        # Dismissed without a click (timeout, explicit dismiss, replaced) --
+        # drop any pending command so it never fires late against a stale file.
+        rm -f "$file"
+        unset "sender_by_id[$id]"
+        ;;
+      esac
       ;;
     esac
   done
