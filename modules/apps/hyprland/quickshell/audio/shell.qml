@@ -369,17 +369,6 @@ FloatingWindow {
 				anchors.rightMargin: 10
 				spacing: 10
 
-				Text {
-					// U+F00C = Font Awesome "check". Literal glyphs (typed
-					// directly as UTF-8) get silently dropped somewhere in
-					// this tool's edit/write path -- \u escapes survive
-					// because they're plain ASCII in the source text.
-					text: isDefault ? "" : ""
-					color: colors.mauve
-					font.pixelSize: 14
-					font.family: "IosevkaTerm Nerd Font"
-				}
-
 				Item {
 					id: nameClip
 					Layout.fillWidth: true
@@ -421,6 +410,17 @@ FloatingWindow {
 							easing.type: Easing.Linear
 						}
 					}
+				}
+
+				Text {
+					// U+F00C = Font Awesome "check". Literal glyphs (typed
+					// directly as UTF-8) get silently dropped somewhere in
+					// this tool's edit/write path -- \u escapes survive
+					// because they're plain ASCII in the source text.
+					text: isDefault ? "" : ""
+					color: colors.mauve
+					font.pixelSize: 14
+					font.family: "IosevkaTerm Nerd Font"
 				}
 			}
 
