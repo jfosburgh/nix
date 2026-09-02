@@ -11,6 +11,7 @@ import Quickshell.Io
 // of round-tripping through stdout for an external pipeline.
 FloatingWindow {
 	id: picker
+	title: "quickshell-clipboard-picker"
 
 	readonly property int rowHeight: 44
 	readonly property int visibleRows: 8

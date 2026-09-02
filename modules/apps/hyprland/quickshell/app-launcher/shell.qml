@@ -9,6 +9,7 @@ import Quickshell.Io
 // than a persistent daemon with an IPC toggle.
 FloatingWindow {
 	id: launcher
+	title: "quickshell-app-launcher"
 
 	readonly property int rowHeight: 44
 	readonly property int visibleRows: 6

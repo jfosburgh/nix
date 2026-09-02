@@ -107,7 +107,7 @@
   },
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "launch-floating-terminal wiremix",
+    "on-click": "qs -c audio",
     "on-click-right": "pamixer -t",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
