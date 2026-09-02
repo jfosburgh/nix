@@ -42,6 +42,6 @@ hl.config({
 
 hl.config({
 	misc = {
-		vrr = 0,
+		vrr = 1,
 	},
 })
