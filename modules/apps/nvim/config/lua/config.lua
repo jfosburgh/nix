@@ -6,7 +6,9 @@ require("mini.extra").setup()
 
 require("blink.cmp").setup({
 	keymap = { preset = "default" },
-	completion = { documentation = { auto_show = true } },
+	-- Menu no longer pops up as you type -- press <C-space> (already bound to
+	-- `show` by the default keymap preset) to bring it up on demand.
+	completion = { menu = { auto_show = false }, documentation = { auto_show = true } },
 	-- Pure-Lua fuzzy matcher: avoids fetching/building a prebuilt rust binary
 	-- outside of nix, at the cost of some matching performance.
 	fuzzy = { implementation = "lua" },

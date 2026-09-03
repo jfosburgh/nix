@@ -14,11 +14,6 @@ vim.keymap.set("n", "<leader>lf", function()
 end, { desc = "Format buffer" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { remap = true })
 
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
-
 vim.keymap.set("n", "<C-n>", "<CMD>bn<CR>", { remap = true })
 vim.keymap.set("n", "<C-p>", "<CMD>bp<CR>", { remap = true })
 
