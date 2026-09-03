@@ -77,10 +77,26 @@ end
 -- values are monitor-relative offsets (confirmed empirically: move="50 50"
 -- landed at monitor.x+50, monitor.y+50), so this computes an offset, not an
 -- absolute position.
-local function registerStaticPopupPosition(title, corner)
+local function registerStaticPopupPosition(title, corner, attempt)
 	local mon = hl.get_active_monitor()
 	local width = popupPanelWidth[title]
 	if not (mon and width) then
+		-- hl.get_active_monitor() can still read nil here even though
+		-- monitors.lua (loaded right before this file) just declared the
+		-- monitor -- confirmed live on sting via `hyprctl eval`: the exact
+		-- same math run interactively after load resolves correctly, but
+		-- this function reliably sees a nil monitor both on Hyprland's own
+		-- startup load and on an explicit `hyprctl reload`, i.e. a monitor
+		-- declared earlier in the same config pass isn't necessarily live
+		-- yet by the time this later line of the same pass runs. Retrying
+		-- briefly (rather than giving up for the rest of the session, which
+		-- left the popup permanently centered) rides out that race.
+		attempt = attempt or 1
+		if attempt <= 20 then
+			hl.timer(function()
+				registerStaticPopupPosition(title, corner, attempt + 1)
+			end, { timeout = 100, type = "oneshot" })
+		end
 		return
 	end
 
