@@ -103,7 +103,7 @@
     "format-disabled": "󰂲",
     "format-connected": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "launch-floating-terminal bluetui"
+    "on-click": "qs -c bluetooth"
   },
   "pulseaudio": {
     "format": "{icon}",
