@@ -96,7 +96,8 @@
     "states": {
       "warning": 20,
       "critical": 10
-    }
+    },
+    "on-click": "quickshell-toggle power"
   },
   "bluetooth": {
     "format": "",
