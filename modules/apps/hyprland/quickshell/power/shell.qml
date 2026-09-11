@@ -39,7 +39,7 @@ FloatingWindow {
 	readonly property int profileRowCount: 3
 	readonly property int profileListHeight: profileRowCount * rowHeight + Math.max(0, profileRowCount - 1) * rowSpacing
 
-	implicitWidth: 420
+	implicitWidth: 300
 	implicitHeight: contentMargin * 2 + headerColumn.height + contentSpacing + dividerHeight + contentSpacing + profileLabel.height + contentSpacing + profileListHeight + contentSpacing + holdsRowHeight
 	color: colors.base
 

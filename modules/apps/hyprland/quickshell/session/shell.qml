@@ -45,7 +45,7 @@ FloatingWindow {
 	]
 	readonly property int actionsHeight: actions.length * rowHeight + Math.max(0, actions.length - 1) * rowSpacing
 
-	implicitWidth: 420
+	implicitWidth: 280
 	implicitHeight: contentMargin * 2 + headerRow.height + contentSpacing + dividerHeight + contentSpacing + actionsHeight
 	color: colors.base
 

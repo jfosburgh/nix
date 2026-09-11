@@ -43,7 +43,7 @@ FloatingWindow {
 	readonly property int visibleDeviceRows: 6
 	readonly property int deviceListHeight: visibleDeviceRows * rowHeight + Math.max(0, visibleDeviceRows - 1) * rowSpacing
 
-	implicitWidth: 420
+	implicitWidth: 340
 	implicitHeight: contentMargin * 2 + headerColumn.height + contentSpacing + dividerHeight + contentSpacing + devicesLabel.height + contentSpacing + deviceListHeight
 	color: colors.base
 

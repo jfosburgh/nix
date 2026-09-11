@@ -40,7 +40,7 @@ FloatingWindow {
 	readonly property int visibleNetworkRows: 6
 	readonly property int networkListHeight: visibleNetworkRows * rowHeight + Math.max(0, visibleNetworkRows - 1) * rowSpacing
 
-	implicitWidth: 420
+	implicitWidth: 380
 	implicitHeight: contentMargin * 2 + headerColumn.height + contentSpacing + dividerHeight + contentSpacing + networksLabel.height + contentSpacing + networkListHeight
 	color: colors.base
 
