@@ -78,32 +78,45 @@ end
 -- landed at monitor.x+50, monitor.y+50), so this computes an offset, not an
 -- absolute position.
 local function registerStaticPopupPosition(title, corner, attempt)
+	attempt = attempt or 1
 	local mon = hl.get_active_monitor()
 	local width = popupPanelWidth[title]
+	local reservedTop = mon and type(mon.reserved) == "table" and mon.reserved.top or 0
+
+	-- Two separate races can leave this under-informed on the first pass:
+	-- hl.get_active_monitor() can still read nil here even though
+	-- monitors.lua (loaded right before this file) just declared the
+	-- monitor -- confirmed live on sting via `hyprctl eval`: the exact same
+	-- math run interactively after load resolves correctly, but this
+	-- function reliably sees a nil monitor both on Hyprland's own startup
+	-- load and on an explicit `hyprctl reload`, i.e. a monitor declared
+	-- earlier in the same config pass isn't necessarily live yet by the
+	-- time this later line of the same pass runs. And even once mon is
+	-- real, waybar reserves its layer-shell space asynchronously
+	-- (autostart.lua execs it in this same config pass, well after this
+	-- file runs), so reservedTop can still read 0 long after mon itself is
+	-- populated -- confirmed live on sting: the popup landed at y=6
+	-- (gaps_out+border only) instead of below the bar, because this ran
+	-- before waybar's surface had reserved anything. Retry on both
+	-- conditions together (rather than giving up for the rest of the
+	-- session, which left the popup either permanently centered or
+	-- permanently glued to the top of the screen) rides out both races; a
+	-- monitor with no bar at all would spin the full budget below and then
+	-- fall through using reservedTop=0, which is the correct answer for
+	-- that case anyway.
+	local needsRetry = not (mon and width) or reservedTop == 0
+	if needsRetry and attempt <= 50 then
+		hl.timer(function()
+			registerStaticPopupPosition(title, corner, attempt + 1)
+		end, { timeout = 100, type = "oneshot" })
+	end
 	if not (mon and width) then
-		-- hl.get_active_monitor() can still read nil here even though
-		-- monitors.lua (loaded right before this file) just declared the
-		-- monitor -- confirmed live on sting via `hyprctl eval`: the exact
-		-- same math run interactively after load resolves correctly, but
-		-- this function reliably sees a nil monitor both on Hyprland's own
-		-- startup load and on an explicit `hyprctl reload`, i.e. a monitor
-		-- declared earlier in the same config pass isn't necessarily live
-		-- yet by the time this later line of the same pass runs. Retrying
-		-- briefly (rather than giving up for the rest of the session, which
-		-- left the popup permanently centered) rides out that race.
-		attempt = attempt or 1
-		if attempt <= 20 then
-			hl.timer(function()
-				registerStaticPopupPosition(title, corner, attempt + 1)
-			end, { timeout = 100, type = "oneshot" })
-		end
 		return
 	end
 
 	local logicalWidth = mon.width / mon.scale
 	local gapsOut = hl.get_config("general.gaps_out")
 	local borderSize = hl.get_config("general.border_size") or 2
-	local reservedTop = (type(mon.reserved) == "table" and mon.reserved.top) or 0
 	local topOffset = math.floor(reservedTop + gapSide(gapsOut, "top") + borderSize)
 
 	local xOffset
