@@ -78,7 +78,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "qs -c wifi"
+    "on-click": "quickshell-toggle wifi"
   },
   "battery": {
     "format": "{capacity}% {icon}",
@@ -103,11 +103,11 @@
     "format-disabled": "󰂲",
     "format-connected": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "qs -c bluetooth"
+    "on-click": "quickshell-toggle bluetooth"
   },
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "qs -c audio",
+    "on-click": "quickshell-toggle audio",
     "on-click-right": "pamixer -t",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,

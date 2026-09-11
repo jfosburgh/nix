@@ -19,6 +19,15 @@ FloatingWindow {
 	id: panel
 	title: "quickshell-audio"
 
+	// Quickshell is built to run as a long-lived shell with zero or more
+	// windows, so closing this one (via Escape/q below, or externally --
+	// conf/rules.lua's close-on-defocus, or `quickshell-toggle` clicking
+	// the bar icon again while this is open) doesn't make the process
+	// exit on its own; confirmed live that without this, the window
+	// disappears but the process keeps running (and polling/listening)
+	// in the background indefinitely. This is what actually ends it.
+	onClosed: Qt.quit()
+
 	readonly property int contentMargin: 10
 	readonly property int contentSpacing: 6 // must match the ColumnLayout's own `spacing` below -- implicitHeight is computed by hand, not measured
 	readonly property int rowHeight: 32

@@ -236,6 +236,12 @@ in {
         runtimeInputs = [hyprshot satty notificationSend];
         text = builtins.readFile ./scripts/screenshot-region;
       })
+
+      (writeShellApplication {
+        name = "quickshell-toggle";
+        runtimeInputs = [hyprland jq quickshell];
+        text = builtins.readFile ./scripts/quickshell-toggle;
+      })
     ];
 
     fonts.fontconfig.enable = true;

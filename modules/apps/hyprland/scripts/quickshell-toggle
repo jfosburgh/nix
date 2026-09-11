@@ -1,0 +1,19 @@
+name="$1"
+title="quickshell-$name"
+
+# Each of these quickshell popups (audio/wifi/bluetooth, see
+# ../quickshell/*/shell.qml) is a fresh process per open rather than a
+# persistent daemon -- see audio/shell.qml's own note on why. That means
+# waybar's on-click can't just always run `qs -c $name`: clicking the bar
+# icon again while the popup is already open would spawn a second,
+# independent instance instead of closing the first. Closing it here relies
+# on each popup's `onClosed: Qt.quit()` (in shell.qml) to actually exit the
+# process once its window is closed -- without that, Quickshell (built to
+# run as a long-lived shell with zero or more windows) doesn't quit just
+# because a window did, and the process would leak running in the
+# background instead of toggling off.
+if hyprctl clients -j | jq -e --arg t "$title" 'any(.[]; .title == $t)' >/dev/null; then
+	hyprctl eval "return hl.dispatch(hl.dsp.window.close({window = \"title:$title\"}))" >/dev/null
+else
+	exec qs -c "$name"
+fi

@@ -18,6 +18,12 @@ FloatingWindow {
 	id: panel
 	title: "quickshell-wifi"
 
+	// See ../audio/shell.qml's identical note: without this, closing the
+	// window (defocus, or `quickshell-toggle` clicking the bar icon again)
+	// doesn't end the process -- Quickshell expects to keep running as a
+	// shell with zero or more windows otherwise.
+	onClosed: Qt.quit()
+
 	readonly property int contentMargin: 10
 	readonly property int contentSpacing: 6
 	readonly property int rowHeight: 32
