@@ -78,7 +78,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "nmrs"
+    "on-click": "qs -c wifi"
   },
   "battery": {
     "format": "{capacity}% {icon}",
