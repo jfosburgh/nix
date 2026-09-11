@@ -14,7 +14,8 @@
     "network",
     "pulseaudio",
     "cpu",
-    "battery"
+    "battery",
+    "custom/power-menu"
   ],
   "niri/workspaces": {
     "on-click": "activate",
@@ -98,6 +99,11 @@
       "critical": 10
     },
     "on-click": "quickshell-toggle power"
+  },
+  "custom/power-menu": {
+    "format": "󰐥",
+    "tooltip-format": "Session",
+    "on-click": "quickshell-toggle session"
   },
   "bluetooth": {
     "format": "",

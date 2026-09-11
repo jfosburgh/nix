@@ -56,6 +56,7 @@ local popupPanels = {
 	["quickshell-wifi"] = "top-right",
 	["quickshell-bluetooth"] = "top-right",
 	["quickshell-power"] = "top-right",
+	["quickshell-session"] = "top-right",
 }
 
 local popupPanelWidth = {
@@ -63,6 +64,7 @@ local popupPanelWidth = {
 	["quickshell-wifi"] = 420,
 	["quickshell-bluetooth"] = 420,
 	["quickshell-power"] = 420,
+	["quickshell-session"] = 420,
 }
 
 -- general.gaps_out (and any CSS-gap-shaped config value) reads back as a

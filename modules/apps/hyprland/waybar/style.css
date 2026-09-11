@@ -44,9 +44,46 @@ window#waybar {
 #pulseaudio,
 #custom-omarchy,
 #custom-screenrecording-indicator,
-#custom-update {
+#custom-update,
+#custom-power-menu {
   min-width: 12px;
   margin: 0 7.5px;
+}
+
+/* Nerd Font icon glyphs each carry their own left/right side-bearing
+   (whitespace baked into the glyph itself, not CSS), which the uniform
+   7.5px margin above doesn't account for -- rendered gaps between the
+   right-hand icons measured (via pixel-column ink bounding boxes in an
+   actual screenshot) at 30/20/18/24/30px despite identical CSS margins.
+   These per-icon overrides were solved from those same measurements to
+   even the visible gaps out to ~24px each; they're specific to this exact
+   glyph set; changing any of these icons' glyphs means remeasuring. */
+#bluetooth {
+  margin-right: 6px;
+}
+
+#network {
+  margin-left: 6px;
+  margin-right: 8.5px;
+}
+
+#pulseaudio {
+  margin-left: 8.5px;
+  margin-right: 8.5px;
+}
+
+#cpu {
+  margin-left: 8.5px;
+  margin-right: 7px;
+}
+
+#battery {
+  margin-left: 7px;
+  margin-right: 6px;
+}
+
+#custom-power-menu {
+  margin-left: 6px;
 }
 
 #custom-expand-icon {
