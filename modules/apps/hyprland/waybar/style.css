@@ -45,7 +45,8 @@ window#waybar {
 #custom-omarchy,
 #custom-screenrecording-indicator,
 #custom-update,
-#custom-power-menu {
+#custom-power-menu,
+#custom-nightlight {
   min-width: 12px;
   margin: 0 7.5px;
 }

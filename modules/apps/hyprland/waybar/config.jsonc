@@ -13,6 +13,7 @@
     "bluetooth",
     "network",
     "pulseaudio",
+    "custom/nightlight",
     "cpu",
     "battery",
     "custom/power-menu"
@@ -104,6 +105,11 @@
     "format": "󰐥",
     "tooltip-format": "Session",
     "on-click": "quickshell-toggle session"
+  },
+  "custom/nightlight": {
+    "format": "󰖔",
+    "tooltip-format": "Night Light",
+    "on-click": "quickshell-toggle nightlight"
   },
   "bluetooth": {
     "format": "",
