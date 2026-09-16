@@ -33,6 +33,9 @@ hl.bind(key("I"), hl.dsp.exec_cmd("pkill hypridle || hypridle"))
 hl.bind(key("T"), hl.dsp.exec_cmd("launch-floating-terminal-keepalive"))
 hl.bind(key("X"), hl.dsp.workspace.move({ monitor = "+1" }))
 hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd("qs -c clipboard-picker"))
+-- Jumps straight to work's session if it's already running, otherwise hands
+-- off to the SDDM greeter. Either way this session keeps running.
+hl.bind(key("SHIFT + U"), hl.dsp.exec_cmd("/run/current-system/sw/bin/switch-session"))
 
 -- Web-app shortcuts
 local webApps = {
