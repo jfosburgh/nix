@@ -37,7 +37,6 @@ window#waybar {
 }
 
 #tray,
-#cpu,
 #battery,
 #network,
 #bluetooth,
@@ -69,16 +68,11 @@ window#waybar {
 
 #pulseaudio {
   margin-left: 8.5px;
-  margin-right: 8.5px;
-}
-
-#cpu {
-  margin-left: 8.5px;
-  margin-right: 7px;
+  margin-right: 6.5px;
 }
 
 #battery {
-  margin-left: 7px;
+  margin-left: 5px;
   margin-right: 6px;
 }
 

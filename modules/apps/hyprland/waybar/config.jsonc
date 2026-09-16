@@ -13,7 +13,6 @@
     "bluetooth",
     "network",
     "pulseaudio",
-    "cpu",
     "battery",
     "custom/settings"
   ],
@@ -57,11 +56,6 @@
       "4": [],
       "5": []
     }
-  },
-  "cpu": {
-    "interval": 5,
-    "format": "󰍛",
-    "on-click": "launch-floating-terminal btop"
   },
   "clock": {
     "format": "{:L%A %H:%M}",
