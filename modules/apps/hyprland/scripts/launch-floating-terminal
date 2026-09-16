@@ -1,2 +1,2 @@
 cmd="$*"
-exec ghostty --title=FloatTerm -e bash -c "$cmd"
+exec ghostty --title=FloatTerm -e zsh -c "$cmd"
