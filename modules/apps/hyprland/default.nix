@@ -4,9 +4,11 @@
   ...
 }: let
   # Catppuccin Macchiato. Single source of truth for hyprlock, Hyprland window
-  # borders, waybar, and mako -- generated into ~/.config/theme/ in several
-  # formats since each consumer's config format has its own (or no) include
-  # mechanism. Order matches the upstream palette listing.
+  # borders, and mako -- generated into ~/.config/theme/ in several formats
+  # since each consumer's config format has its own (or no) include
+  # mechanism. The quickshell bar/panels duplicate these values by hand
+  # instead (see each shell.qml's own note) rather than reading a generated
+  # file. Order matches the upstream palette listing.
   macchiato = [
     {
       name = "rosewater";
@@ -188,7 +190,6 @@ in {
       hyprsunset
       hyprshot
       satty
-      waybar
       swayosd
       mako
       nautilus
@@ -239,7 +240,7 @@ in {
 
       (writeShellApplication {
         name = "quickshell-toggle";
-        runtimeInputs = [hyprland jq quickshell];
+        runtimeInputs = [hyprland jq quickshell procps];
         text = builtins.readFile ./scripts/quickshell-toggle;
       })
     ];
@@ -287,9 +288,6 @@ in {
     xdg.configFile.quickshell.source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/quickshell";
 
-    xdg.configFile.waybar.source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/waybar";
-
     xdg.configFile."theme/macchiato.conf".text =
       lib.concatMapStringsSep "\n" (c: "\$${c.name} = rgb(${c.hex})\n\$${c.name}Alpha = ${c.hex}\n") macchiato;
 
@@ -297,10 +295,6 @@ in {
       "return {\n"
       + lib.concatMapStringsSep "\n" (c: "  ${c.name} = \"rgb(${c.hex})\",") macchiato
       + "\n}\n";
-
-    xdg.configFile."theme/macchiato.css".text =
-      lib.concatMapStringsSep "\n" (c: "@define-color ${c.name} #${c.hex};") macchiato
-      + "\n";
 
     # mako's config format has no include directive, so it's fully generated
     # rather than templated in place like the others.

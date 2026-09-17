@@ -100,13 +100,13 @@ local function registerStaticPopupPosition(title, corner, attempt)
 	-- load and on an explicit `hyprctl reload`, i.e. a monitor declared
 	-- earlier in the same config pass isn't necessarily live yet by the
 	-- time this later line of the same pass runs. And even once mon is
-	-- real, waybar reserves its layer-shell space asynchronously
-	-- (autostart.lua execs it in this same config pass, well after this
-	-- file runs), so reservedTop can still read 0 long after mon itself is
-	-- populated -- confirmed live on sting: the popup landed at y=6
-	-- (gaps_out+border only) instead of below the bar, because this ran
-	-- before waybar's surface had reserved anything. Retry on both
-	-- conditions together (rather than giving up for the rest of the
+	-- real, the quickshell bar (../quickshell/bar/shell.qml) reserves its
+	-- layer-shell space asynchronously (autostart.lua execs it in this same
+	-- config pass, well after this file runs), so reservedTop can still
+	-- read 0 long after mon itself is populated -- confirmed live on sting:
+	-- the popup landed at y=6 (gaps_out+border only) instead of below the
+	-- bar, because this ran before the bar's surface had reserved anything.
+	-- Retry on both conditions together (rather than giving up for the rest of the
 	-- session, which left the popup either permanently centered or
 	-- permanently glued to the top of the screen) rides out both races; a
 	-- monitor with no bar at all would spin the full budget below and then
@@ -150,20 +150,16 @@ for title, corner in pairs(popupPanels) do
 end
 
 -- The window is already correctly placed by the static rule above by the
--- time window.open fires, so this only needs to warp the cursor to its real
--- (now-known) center and arm the close-on-defocus grace period -- no move
--- dispatch here means no risk of the earlier center-then-jump focus-mismatch
--- bug recurring.
+-- time window.open fires, so this only needs to arm the close-on-defocus
+-- grace period. Used to also warp the cursor to the popup's center here --
+-- dropped as unwanted (moving the mouse on every popup open was more
+-- surprising than helpful); the grace period itself doesn't depend on
+-- cursor position, only on focus actually leaving the popup.
 local armedAt = {}
 
 hl.on("window.open", function(win)
 	if not (win and win.title and popupPanels[win.title]) then
 		return
-	end
-
-	local at, size = win.at, win.size
-	if at and size then
-		hl.dispatch(hl.dsp.cursor.move({ x = math.floor(at.x + size.x / 2), y = math.floor(at.y + size.y / 2) }))
 	end
 
 	armedAt[win.title] = false

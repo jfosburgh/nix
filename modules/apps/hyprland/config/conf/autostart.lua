@@ -4,7 +4,7 @@ local browser = "zen"
 hl.on("hyprland.start", function()
 	hl.exec_cmd("uwsm app -- " .. terminal, { workspace = "1 silent" })
 	hl.exec_cmd("uwsm app -- " .. browser, { workspace = "2 silent" })
-	hl.exec_cmd("uwsm app -- waybar")
+	hl.exec_cmd("uwsm app -- qs -c bar")
 	hl.exec_cmd("uwsm app -- hyprpaper")
 	-- Runs its own day/night schedule from hyprsunset.conf's `profile`
 	-- blocks. ../quickshell/nightlight/shell.qml's toggle also lazy-starts

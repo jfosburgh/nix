@@ -266,8 +266,8 @@ FloatingWindow {
 		panel.sourceNodes = panel.applyStableOrder(sources, panel.sourceOrder);
 	}
 
-	// Cursor-warp-on-open and close-on-defocus both live in Hyprland's own
-	// Lua config now (conf/rules.lua), not here: QML's own hover tracking was
+	// Close-on-defocus lives in Hyprland's own Lua config now (conf/rules.lua),
+	// not here: QML's own hover tracking was
 	// unreliable for "is the pointer still anywhere over this window" (a
 	// HoverHandler behind the real controls flickered false whenever the
 	// pointer crossed onto the volume slider or a device row, since those

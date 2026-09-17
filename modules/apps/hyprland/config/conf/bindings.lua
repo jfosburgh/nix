@@ -2,11 +2,11 @@ local mainMod = "SUPER"
 local terminal = "ghostty"
 local browser = "zen-browser"
 local fileManager = "nautilus"
--- Plain `pkill quickshell` (not `-f`) matches by process name, not full
--- command line -- `-f` would match the pattern text against this very
--- shell's own argv (which contains the pattern as a literal string) and kill
--- itself before ever launching anything.
-local menu = "pkill quickshell || qs -c app-launcher"
+-- Not a `pkill quickshell` toggle: that matches by process name, not title,
+-- so it would also catch (and kill) ../quickshell/bar's persistent process
+-- -- see quickshell-toggle's own note on why the bar needs different
+-- handling than these per-invocation popups.
+local menu = "quickshell-toggle app-launcher"
 local webApp = "helium-browser"
 local floatTerm = "launch-floating-terminal"
 
@@ -21,7 +21,7 @@ hl.bind(key("M"), hl.dsp.exec_cmd("uwsm stop"))
 hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
 hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"), hl.dsp.window.fullscreen())
-hl.bind(key("B"), hl.dsp.exec_cmd("pkill waybar || waybar"))
+hl.bind(key("B"), hl.dsp.exec_cmd("quickshell-toggle bar"))
 hl.bind(key("S"), hl.dsp.exec_cmd("screenshot-region"))
 -- hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd("hyprshot -m window"))
 hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
