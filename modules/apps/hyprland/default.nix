@@ -2,120 +2,7 @@
   self,
   inputs,
   ...
-}: let
-  # Catppuccin Macchiato. Single source of truth for hyprlock, Hyprland window
-  # borders, and mako -- generated into ~/.config/theme/ in several formats
-  # since each consumer's config format has its own (or no) include
-  # mechanism. The quickshell bar/panels duplicate these values by hand
-  # instead (see each shell.qml's own note) rather than reading a generated
-  # file. Order matches the upstream palette listing.
-  macchiato = [
-    {
-      name = "rosewater";
-      hex = "f4dbd6";
-    }
-    {
-      name = "flamingo";
-      hex = "f0c6c6";
-    }
-    {
-      name = "pink";
-      hex = "f5bde6";
-    }
-    {
-      name = "mauve";
-      hex = "c6a0f6";
-    }
-    {
-      name = "red";
-      hex = "ed8796";
-    }
-    {
-      name = "maroon";
-      hex = "ee99a0";
-    }
-    {
-      name = "peach";
-      hex = "f5a97f";
-    }
-    {
-      name = "yellow";
-      hex = "eed49f";
-    }
-    {
-      name = "green";
-      hex = "a6da95";
-    }
-    {
-      name = "teal";
-      hex = "8bd5ca";
-    }
-    {
-      name = "sky";
-      hex = "91d7e3";
-    }
-    {
-      name = "sapphire";
-      hex = "7dc4e4";
-    }
-    {
-      name = "blue";
-      hex = "8aadf4";
-    }
-    {
-      name = "lavender";
-      hex = "b7bdf8";
-    }
-    {
-      name = "text";
-      hex = "cad3f5";
-    }
-    {
-      name = "subtext1";
-      hex = "b8c0e0";
-    }
-    {
-      name = "subtext0";
-      hex = "a5adcb";
-    }
-    {
-      name = "overlay2";
-      hex = "939ab7";
-    }
-    {
-      name = "overlay1";
-      hex = "8087a2";
-    }
-    {
-      name = "overlay0";
-      hex = "6e738d";
-    }
-    {
-      name = "surface2";
-      hex = "5b6078";
-    }
-    {
-      name = "surface1";
-      hex = "494d64";
-    }
-    {
-      name = "surface0";
-      hex = "363a4f";
-    }
-    {
-      name = "base";
-      hex = "24273a";
-    }
-    {
-      name = "mantle";
-      hex = "1e2030";
-    }
-    {
-      name = "crust";
-      hex = "181926";
-    }
-  ];
-in {
+}: {
   flake.overlays.hyprland-glaze-fix = final: prev: {
     hyprland = prev.hyprland.override {
       glaze = prev.glaze.overrideAttrs (_: {
@@ -141,17 +28,15 @@ in {
     programs.hyprland.enable = true;
     programs.hyprland.withUWSM = true;
 
-    programs.hyprlock.enable = true;
-
     xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
 
     services.gvfs.enable = true;
-    services.udev.packages = [pkgs.swayosd];
 
-    # GNOME/KDE launch ibus themselves; other desktops (including Hyprland) get it
-    # via this XDG autostart entry, which nags about not being a "real" desktop
-    # session under Wayland. Shadow it (earlier in XDG_CONFIG_DIRS than the
-    # package-provided one) to skip it under Hyprland too.
+    nix.settings = {
+      extra-substituters = ["https://noctalia.cachix.org"];
+      extra-trusted-public-keys = ["noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="];
+    };
+
     environment.etc."xdg/autostart/ibus-daemon.desktop" =
       lib.mkIf
       (config.i18n.inputMethod.enable && config.i18n.inputMethod.type == "ibus")
@@ -168,37 +53,51 @@ in {
 
   flake.homeModules.hyprland = {
     pkgs,
-    lib,
     config,
     dotfilesRoot,
     ...
-  }: let
-    color = name: (lib.findFirst (c: c.name == name) null macchiato).hex;
-    notificationActionListener = pkgs.writeShellApplication {
-      name = "notification-action-listener";
-      runtimeInputs = with pkgs; [systemd jq util-linux];
-      text = builtins.readFile ./scripts/notification-action-listener;
+  }: {
+    imports = [inputs.noctalia.homeModules.default];
+
+    programs.noctalia = {
+      enable = true;
+      systemd.enable = true;
+
+      settings = {
+        theme = {
+          mode = "dark";
+          source = "builtin";
+          builtin = "Catppuccin";
+
+          # Template enablement (theme.templates.*) deliberately isn't set
+          # here: it lives in the live-editable noctalia-settings.toml below
+          # instead, alongside everything else Settings -> Templates toggles.
+          # GTK/Qt templates in particular can't be enabled from either
+          # place: gtk.enable manages ~/.config/gtk-3.0 as Nix-store
+          # symlinks, which a template can't write into (Noctalia's own
+          # docs call this out). hyprland.lua's require("noctalia") and
+          # modules/apps/ghostty/config's `theme` line are pre-wired to
+          # match what the hyprland/ghostty templates would write on first
+          # run, so enabling those two lands as a no-op instead of an
+          # out-of-band diff to a git-tracked file.
+        };
+
+        # Set explicitly rather than left to noctalia's directory-scanning
+        # wallpaper picker: that picker (and its thumbnailer) only recognizes
+        # files with a known image extension, and this repo's background
+        # asset is stored suffix-less (see backgrounds/default) -- it's a
+        # real JPEG, just an extensionless one, so the picker can't find it
+        # even though direct loading-by-path (used here) doesn't care about
+        # the extension at all.
+        wallpaper = {
+          enabled = true;
+          default.path = "${config.home.homeDirectory}/.config/backgrounds/default";
+        };
+      };
     };
-    notificationSend = pkgs.writeShellApplication {
-      name = "notification-send";
-      runtimeInputs = with pkgs; [systemd];
-      text = builtins.readFile ./scripts/notification-send;
-    };
-  in {
+
     home.packages = with pkgs; [
-      hyprpaper
-      hyprsunset
-      hyprshot
-      satty
-      swayosd
-      mako
       nautilus
-      cliphist
-      wl-clipboard
-      bluetui
-      wiremix
-      pamixer
-      quickshell
 
       inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
 
@@ -227,45 +126,9 @@ in {
         runtimeInputs = [nix-search-tv fzf];
         text = builtins.readFile ./scripts/nix-search-shell;
       })
-
-      notificationSend
-
-      notificationActionListener
-
-      (writeShellApplication {
-        name = "screenshot-region";
-        runtimeInputs = [hyprshot satty notificationSend];
-        text = builtins.readFile ./scripts/screenshot-region;
-      })
-
-      (writeShellApplication {
-        name = "quickshell-toggle";
-        runtimeInputs = [hyprland jq quickshell procps];
-        text = builtins.readFile ./scripts/quickshell-toggle;
-      })
     ];
 
     fonts.fontconfig.enable = true;
-
-    # bluetui and wiremix are TUI-only tools nixpkgs ships with no .desktop
-    # file, so they're invisible to anything reading DesktopEntries (like the
-    # quickshell launcher). terminal = true gets them the floating-terminal
-    # treatment shell.qml gives Terminal=true entries.
-    xdg.desktopEntries.bluetui = {
-      name = "Bluetui";
-      genericName = "Bluetooth Manager";
-      exec = "bluetui";
-      terminal = true;
-      categories = ["System" "Network"];
-    };
-
-    xdg.desktopEntries.wiremix = {
-      name = "Wiremix";
-      genericName = "Audio Mixer";
-      exec = "wiremix";
-      terminal = true;
-      categories = ["System" "AudioVideo"];
-    };
 
     gtk.enable = true;
     gtk.font.name = "IosevkaTerm Nerd Font";
@@ -285,49 +148,13 @@ in {
     xdg.configFile."backgrounds/default".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds/default";
 
-    xdg.configFile.quickshell.source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/quickshell";
-
-    xdg.configFile."theme/macchiato.conf".text =
-      lib.concatMapStringsSep "\n" (c: "\$${c.name} = rgb(${c.hex})\n\$${c.name}Alpha = ${c.hex}\n") macchiato;
-
-    xdg.configFile."theme/macchiato.lua".text =
-      "return {\n"
-      + lib.concatMapStringsSep "\n" (c: "  ${c.name} = \"rgb(${c.hex})\",") macchiato
-      + "\n}\n";
-
-    # mako's config format has no include directive, so it's fully generated
-    # rather than templated in place like the others.
-    xdg.configFile."mako/config".text = ''
-      # Colors
-      background-color=#${color "base"}
-      text-color=#${color "text"}
-      border-color=#${color "mauve"}
-      border-radius=4
-      progress-color=over #${color "surface0"}
-
-      default-timeout=5000
-
-      on-button-left=invoke-default-action
-
-      [urgency=high]
-      border-color=#${color "peach"}
-    '';
-
-    systemd.user.services.notification-action-listener = {
-      Unit = {
-        Description = "Run the --exec command of a notification-send toast on click";
-        PartOf = ["graphical-session.target"];
-      };
-
-      Service = {
-        ExecStart = "${notificationActionListener}/bin/notification-action-listener";
-        Restart = "on-failure";
-      };
-
-      Install = {
-        WantedBy = ["graphical-session.target"];
-      };
-    };
+    # Noctalia's own GUI-writable state -- Settings changes, template
+    # enablement, bar/widget layout, lockscreen widget positions -- rather
+    # than the declarative programs.noctalia.settings above (which only
+    # covers what has no GUI equivalent, e.g. wallpaper path). An
+    # out-of-store symlink so Settings keeps writing straight into this
+    # repo's copy instead of a Nix-store-immutable one.
+    xdg.stateFile."noctalia/settings.toml".source =
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/noctalia-settings.toml";
   };
 }

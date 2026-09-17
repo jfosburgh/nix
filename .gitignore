@@ -7,3 +7,9 @@ result-*
 
 # Ignore NixOS interactive test driver history
 **/.nixos-test-history
+
+# Written at runtime by Noctalia's "hyprland" theme template directly into
+# ~/.config/hypr, which is symlinked to modules/apps/hyprland/config -- see
+# hyprland.lua's require("noctalia") and default.nix's theme.templates.
+/modules/apps/hyprland/config/noctalia.lua
+/modules/apps/hyprland/config/noctalia.conf

@@ -2,11 +2,8 @@ local mainMod = "SUPER"
 local terminal = "ghostty"
 local browser = "zen-browser"
 local fileManager = "nautilus"
--- Not a `pkill quickshell` toggle: that matches by process name, not title,
--- so it would also catch (and kill) ../quickshell/bar's persistent process
--- -- see quickshell-toggle's own note on why the bar needs different
--- handling than these per-invocation popups.
-local menu = "quickshell-toggle app-launcher"
+local noctaliaIpc = "noctalia msg "
+local menu = noctaliaIpc .. "panel-toggle launcher"
 local webApp = "helium-browser"
 local floatTerm = "launch-floating-terminal"
 
@@ -21,20 +18,17 @@ hl.bind(key("M"), hl.dsp.exec_cmd("uwsm stop"))
 hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
 hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"), hl.dsp.window.fullscreen())
-hl.bind(key("B"), hl.dsp.exec_cmd("quickshell-toggle bar"))
-hl.bind(key("S"), hl.dsp.exec_cmd("screenshot-region"))
--- hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd("hyprshot -m window"))
-hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
+hl.bind(key("B"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle control-center"))
+hl.bind(key("S"), hl.dsp.exec_cmd(noctaliaIpc .. "screenshot-region"))
+hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd(noctaliaIpc .. "session lock"))
 -- Fuzzy-search nixpkgs and drop into a nix shell with the selected package.
 hl.bind(key("P"), hl.dsp.exec_cmd(floatTerm .. " nix-search-shell"))
 hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd("slack"))
 hl.bind(key("SHIFT + B"), hl.dsp.exec_cmd("pkill kanata || kanata"))
-hl.bind(key("I"), hl.dsp.exec_cmd("pkill hypridle || hypridle"))
+hl.bind(key("I"), hl.dsp.exec_cmd(noctaliaIpc .. "caffeine-toggle"))
 hl.bind(key("T"), hl.dsp.exec_cmd("launch-floating-terminal-keepalive"))
 hl.bind(key("X"), hl.dsp.workspace.move({ monitor = "+1" }))
-hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd("qs -c clipboard-picker"))
--- Jumps straight to work's session if it's already running, otherwise hands
--- off to the SDDM greeter. Either way this session keeps running.
+hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle clipboard"))
 hl.bind(key("SHIFT + U"), hl.dsp.exec_cmd("/run/current-system/sw/bin/switch-session"))
 
 -- Web-app shortcuts
@@ -67,28 +61,26 @@ end
 hl.bind(key("mouse:272"), hl.dsp.window.drag(), { mouse = true })
 hl.bind(key("SHIFT + mouse:272"), hl.dsp.window.resize(), { mouse = true })
 
--- Laptop multimedia keys for volume and LCD brightness
 local mediaKeys = {
-	{ "XF86AudioRaiseVolume", "swayosd-client --output-volume=raise" },
-	{ "XF86AudioLowerVolume", "swayosd-client --output-volume=lower" },
-	{ "XF86AudioMute", "swayosd-client --output-volume=mute-toggle" },
-	{ "XF86AudioMicMute", "swayosd-client --input-volume=mute-toggle" },
-	{ "XF86MonBrightnessUp", "swayosd-client --brightness=raise" },
-	{ "XF86MonBrightnessDown", "swayosd-client --brightness=lower" },
+	{ "XF86AudioRaiseVolume", "volume-up" },
+	{ "XF86AudioLowerVolume", "volume-down" },
+	{ "XF86AudioMute", "volume-mute" },
+	{ "XF86AudioMicMute", "mic-mute" },
+	{ "XF86MonBrightnessUp", "brightness-up" },
+	{ "XF86MonBrightnessDown", "brightness-down" },
 }
 for _, mk in ipairs(mediaKeys) do
-	hl.bind(mk[1], hl.dsp.exec_cmd(mk[2]), { locked = true, repeating = true })
+	hl.bind(mk[1], hl.dsp.exec_cmd(noctaliaIpc .. mk[2]), { locked = true, repeating = true })
 end
 
--- Requires playerctl
-local playerctlKeys = {
+local mediaPlayerKeys = {
 	{ "XF86AudioNext", "next" },
-	{ "XF86AudioPause", "play-pause" },
-	{ "XF86AudioPlay", "play-pause" },
+	{ "XF86AudioPause", "toggle" },
+	{ "XF86AudioPlay", "toggle" },
 	{ "XF86AudioPrev", "previous" },
 }
-for _, pk in ipairs(playerctlKeys) do
-	hl.bind(pk[1], hl.dsp.exec_cmd("playerctl " .. pk[2]), { locked = true })
+for _, pk in ipairs(mediaPlayerKeys) do
+	hl.bind(pk[1], hl.dsp.exec_cmd(noctaliaIpc .. "media " .. pk[2]), { locked = true })
 end
 
 -- hl.bind("switch:Lid Switch", hl.dsp.exec_cmd("systemctl suspend-then-hibernate"), { locked = true })

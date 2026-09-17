@@ -1,5 +1,6 @@
 vim.pack.add({
 	{ src = "https://github.com/catppuccin/nvim" },
+	-- config.lua's colorscheme fallback).
 	{ src = "https://github.com/stevearc/oil.nvim" },
 	{ src = "https://github.com/nvim-mini/mini.pick" },
 	{ src = "https://github.com/nvim-mini/mini.extra" },

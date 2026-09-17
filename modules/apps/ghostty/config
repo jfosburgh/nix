@@ -1,4 +1,4 @@
-theme = "Catppuccin Macchiato"
+theme = noctalia
 font-family = "IosevkaTerm Nerd Font"
 font-size = 14
 
@@ -6,28 +6,8 @@ window-padding-balance = true
 
 keybind = ctrl+f=text:tmux-sessionizer\n
 
-# Ghostty's own default tab-switching binds otherwise eat these before tmux
-# ever sees them. `unbind` alone isn't enough to hand them to tmux either --
-# ghostty's docs say an unbound *printable* key (Tab counts) is sent through
-# in its unmodified form, i.e. plain Tab with the Ctrl stripped, which is
-# indistinguishable from a real Tab keypress once it reaches tmux. So instead
-# of relying on Ctrl/Shift being reported at all (which needs tmux's
-# extended-keys / the terminal's modifyOtherKeys-or-Kitty protocol to
-# negotiate correctly -- confirmed live that it doesn't here), each combo is
-# rebound to emit its own private CSI sequence unconditionally. tmux matches
-# those literal bytes via `user-keys` in modules/apps/tmux/tmux.conf --
-# 250~/251~ are unused by any real key, chosen to avoid colliding with
-# bracketed-paste's 200~/201~ or any xterm function-key ~ code (those top out
-# around 24~).
 keybind = ctrl+tab=text:\x1b[250~
 keybind = ctrl+shift+tab=text:\x1b[251~
-
-# Alt+Tab -> most-recently-used tmux *session* switch (modules/apps/tmux/tmux.conf).
-# Same private-CSI approach as above, and for the same reason: Ghostty's
-# legacy encoding of Alt-modified keys prefixes a plain ESC byte, which is
-# genuinely ambiguous with a real Escape keypress immediately followed by
-# Tab (an actual sequence a user could type, e.g. in vim) -- there'd be no
-# reliable way for tmux to tell them apart.
 keybind = alt+tab=text:\x1b[252~
 
 keybind = ctrl+v=paste_from_clipboard

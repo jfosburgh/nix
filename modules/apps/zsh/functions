@@ -52,7 +52,11 @@ hms() {
     return 1
   fi
 
-  home-manager switch --flake "/home/james/nix#james@$profile"
+  home-manager switch --flake "/home/james/nix#james@$profile" || return
+
+  if command -v hyprctl >/dev/null 2>&1; then
+    hyprctl reload >/dev/null 2>&1
+  fi
 }
 
 deploy-pinas() {

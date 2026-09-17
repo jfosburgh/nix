@@ -5,3 +5,6 @@ require("./conf/input.lua")
 require("./conf/looknfeel.lua")
 require("./conf/monitors.lua")
 require("./conf/rules.lua")
+
+-- For Noctalia Color templates
+require("noctalia").apply_theme()

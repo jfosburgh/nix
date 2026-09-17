@@ -1,0 +1,138 @@
+config_version = 14
+
+[bar.default]
+border_width = 2.0
+concave_edge_corners = false
+end = [
+    "media",
+    "tray",
+    "notifications",
+    "clipboard",
+    "network",
+    "bluetooth",
+    "volume",
+    "brightness",
+    "battery",
+    "session"
+]
+font_family = "IosevkaTerm Nerd Font Mono"
+layer = "overlay"
+margin_ends = 4
+radius = 6
+reserve_space = false
+show_on_workspace_switch = false
+smart_auto_hide = true
+start = [ "workspaces" ]
+
+[dock]
+enabled = false
+
+[hot_corners.top_left]
+action = "launcher"
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@eDP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 705.0
+    cy = 758.0
+    output = "eDP-1"
+    placement_height = 940.0
+    placement_width = 1410.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+[shell]
+corner_radius_scale = 0.30000000447034836
+font_family = "IosevkaTerm Nerd Font Mono"
+
+    [shell.animation]
+    speed = 2.0000000298023224
+
+    [shell.screen_corners]
+    size = 6
+
+[theme]
+builtin = "Kanagawa"
+community_palette = "Catppuccin Macchiato Lavender"
+mode = "dark"
+source = "builtin"
+wallpaper_scheme = "soft"
+
+    [theme.templates]
+    builtin_ids = [ "btop", "ghostty", "hyprland" ]
+    community_ids = [
+        "claude-code",
+        "pi-agent",
+        "zen-browser",
+        "discord",
+        "steam",
+        "papirus-icons",
+        "fzf",
+        "lazygit",
+        "tmux",
+        "yazi"
+    ]
+
+[wallpaper]
+directory = "/home/james/.config/backgrounds"
+
+    [wallpaper.default]
+    path = "/home/james/.config/backgrounds/mountain-forest.jpg"
+
+    [wallpaper.last]
+    path = "/home/james/.config/backgrounds/mountain-forest.jpg"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/james/.config/backgrounds/mountain-forest.jpg"
+
+[widget.battery]
+show_label = false
+
+[widget.brightness]
+show_label = false
+
+[widget.media]
+hide_when_no_media = true
+
+[widget.network]
+show_label = false
+
+[widget.notifications]
+hide_when_no_unread = true
+
+[widget.tray]
+hidden = [ "Blueman" ]
+
+[widget.volume]
+show_label = false
+
+[widget.workspaces]
+empty_color = "outline"
+occupied_color = "on_surface"
+style = "minimal"

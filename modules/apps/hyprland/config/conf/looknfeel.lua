@@ -1,6 +1,3 @@
--- Catppuccin Macchiato, generated from modules/apps/hyprland/default.nix.
-local palette = dofile(os.getenv("HOME") .. "/.config/theme/macchiato.lua")
-
 -- https://wiki.hyprland.org/Configuring/Variables/#general
 hl.config({
 	general = {
@@ -8,11 +5,6 @@ hl.config({
 		gaps_out = 4,
 
 		border_size = 2,
-
-		col = {
-			active_border = { colors = { palette.mauve, palette.flamingo }, angle = 90 },
-			inactive_border = palette.subtext0,
-		},
 
 		allow_tearing = false,
 	},
