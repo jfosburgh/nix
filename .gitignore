@@ -13,3 +13,4 @@ result-*
 # hyprland.lua's require("noctalia") and default.nix's theme.templates.
 /modules/apps/hyprland/config/noctalia.lua
 /modules/apps/hyprland/config/noctalia.conf
+/modules/apps/hyprland/config/hyprtoolkit.conf

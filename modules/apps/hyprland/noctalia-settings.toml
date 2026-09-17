@@ -30,6 +30,9 @@ enabled = false
 [hot_corners.top_left]
 action = "launcher"
 
+[location]
+auto_locate = true
+
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
@@ -79,19 +82,21 @@ font_family = "IosevkaTerm Nerd Font Mono"
 
 [theme]
 builtin = "Kanagawa"
-community_palette = "Catppuccin Macchiato Lavender"
-mode = "dark"
-source = "builtin"
+community_palette = "Everforest Alt"
+mode = "light"
+source = "community"
 wallpaper_scheme = "soft"
 
     [theme.templates]
-    builtin_ids = [ "btop", "ghostty", "hyprland" ]
+    builtin_ids = [ "btop", "gtk3", "gtk4", "ghostty", "hyprland", "qt", "starship" ]
     community_ids = [
         "claude-code",
         "pi-agent",
         "zen-browser",
         "discord",
+        "neovim",
         "steam",
+        "hyprtoolkit",
         "papirus-icons",
         "fzf",
         "lazygit",
@@ -110,6 +115,9 @@ directory = "/home/james/.config/backgrounds"
 
     [wallpaper.monitors.eDP-1]
     path = "/home/james/.config/backgrounds/mountain-forest.jpg"
+
+[weather]
+unit = "imperial"
 
 [widget.battery]
 show_label = false
