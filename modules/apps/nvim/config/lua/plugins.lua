@@ -1,8 +1,6 @@
 vim.pack.add({
 	{ src = "https://github.com/catppuccin/nvim" },
-	-- config.lua's colorscheme fallback). matugen.lua (noctalia's neovim
-	-- template) overrides this at startup via base16-colorscheme once
-	-- noctalia has rendered real theme colors into it.
+	-- matugen.lua overrides this at startup via base16-colorscheme.
 	{ src = "https://github.com/RRethy/base16-nvim" },
 	{ src = "https://github.com/stevearc/oil.nvim" },
 	{ src = "https://github.com/nvim-mini/mini.pick" },

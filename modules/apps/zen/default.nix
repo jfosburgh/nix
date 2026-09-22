@@ -20,16 +20,10 @@
       inputs.zen-browser.packages.x86_64-linux.default
     ];
 
-    # Zen (MOZ_LEGACY_PROFILES=1) keeps its profile under ~/.config/zen rather
-    # than ~/.zen. "1gbxz4hh.Default Profile" is this machine's existing
-    # profile id from ~/.config/zen/profiles.ini, not something Nix generates
-    # deterministically, so this breaks if the profile is ever reset/recreated
-    # or copied to a host with no (or a different) profile yet.
-    #
-    # Deployed via an activation script (copy) rather than home.file (symlink):
-    # the noctalia zen-browser theme template rewrites user.js in place to wire
-    # up userChrome/userContent.css, which fails outright against a read-only
-    # symlink into the Nix store (touch/cat get EACCES on the target).
+    # "1gbxz4hh.Default Profile" is this machine's zen profile id (from
+    # ~/.config/zen/profiles.ini) -- not stable across a profile reset.
+    # Copied via activation, not home.file: noctalia's zen-browser template
+    # rewrites user.js in place, which fails against a Nix store symlink.
     home.activation.zenUserJs = config.lib.dag.entryAfter ["writeBoundary"] ''
       target="$HOME/${profileRelPath}"
       mkdir -p "$(dirname "$target")"

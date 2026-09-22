@@ -1,24 +1,27 @@
-{...}: {
-  flake.nixosModules.narsil-configuration = {pkgs, ...}: {
+{self, ...}: {
+  flake.nixosModules.narsil-configuration = {
+    pkgs,
+    lib,
+    ...
+  }: {
+    imports = [self.nixosModules.vt-fast-switch];
+
     _module.args.dotfilesRoot = "/home/james/nix";
 
     networking.hostName = "narsil";
 
     boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
-    services.displayManager.autoLogin = {
-      enable = true;
+    # Autologin to Hyprland for james; work picks GNOME manually from the
+    # greeter after any later logout.
+    services.greetd.settings.initial_session = {
+      command = "${lib.getExe' pkgs.uwsm "uwsm"} start -e -D Hyprland hyprland.desktop";
       user = "james";
     };
-    services.displayManager.defaultSession = "hyprland-uwsm";
 
-    # GNOME session, for the work user (see users.users.work below). james
-    # stays on Hyprland via the autologin default session above; SDDM's
-    # session picker lets work choose GNOME at login.
     services.xserver.enable = true;
     services.desktopManager.gnome.enable = true;
 
-    # Host-specific extra users
     users.users.work = {
       isNormalUser = true;
       description = "work";

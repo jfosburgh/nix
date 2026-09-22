@@ -30,6 +30,12 @@ enabled = false
 [hot_corners.top_left]
 action = "launcher"
 
+[keybinds]
+down = [ "Down", "Ctrl+j", "Ctrl+n" ]
+left = [ "Left", "Ctrl+h" ]
+right = [ "Right", "Ctrl+l" ]
+up = [ "Up", "Ctrl+k", "Ctrl+p" ]
+
 [location]
 auto_locate = true
 
@@ -70,6 +76,9 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
         show_unlock_hint = true
         show_weather = true
 
+[nightlight]
+enabled = true
+
 [shell]
 corner_radius_scale = 0.30000000447034836
 font_family = "IosevkaTerm Nerd Font Mono"
@@ -77,13 +86,16 @@ font_family = "IosevkaTerm Nerd Font Mono"
     [shell.animation]
     speed = 2.0000000298023224
 
+    [shell.greeter_sync]
+    auto_sync = true
+
     [shell.screen_corners]
     size = 6
 
 [theme]
 builtin = "Kanagawa"
 community_palette = "Everforest Alt"
-mode = "light"
+mode = "auto"
 source = "community"
 wallpaper_scheme = "soft"
 
@@ -101,8 +113,14 @@ wallpaper_scheme = "soft"
         "fzf",
         "lazygit",
         "tmux",
-        "yazi"
+        "yazi",
+        "bat"
     ]
+
+        [theme.templates.user.keyboard_backlight]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/keyboard-backlight-mode.tmpl"
+        output_path = "$XDG_CACHE_HOME/noctalia/keyboard-backlight-mode"
+        post_hook = "keyboard-backlight-sync {{ mode }}"
 
 [wallpaper]
 directory = "/home/james/.config/backgrounds"

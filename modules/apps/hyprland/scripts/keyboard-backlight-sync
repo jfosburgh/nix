@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "${1:-}" in
+dark) noctalia msg keyboard-backlight-set 100 ;;
+light) noctalia msg keyboard-backlight-set 0 ;;
+*)
+	echo "keyboard-backlight-sync: unknown mode '${1:-}'" >&2
+	exit 1
+	;;
+esac

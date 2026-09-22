@@ -34,11 +34,23 @@ if hostname() == "glamdring" then
 	hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 end
 
-hl.config({
-	cursor = {
-		no_hardware_cursors = true,
-	},
-})
+-- Nvidia-only workaround for hardware-cursor corruption (glamdring's 1080ti).
+if hostname() == "glamdring" then
+	hl.config({
+		cursor = {
+			no_hardware_cursors = true,
+		},
+	})
+else
+	-- Explicit false: Hyprland's "auto" default can fall back to software-only
+	-- cursor rendering under fractional scaling (sting's panel runs 1.6x),
+	-- leaving stale cursor-plane sprites on screen after login.
+	hl.config({
+		cursor = {
+			no_hardware_cursors = false,
+		},
+	})
+end
 
 hl.config({
 	misc = {

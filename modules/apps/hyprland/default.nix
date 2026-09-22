@@ -107,6 +107,14 @@
         runtimeInputs = [nix-search-tv fzf];
         text = builtins.readFile ./scripts/nix-search-shell;
       })
+
+      # Driven by theme.templates.user.keyboard_backlight's post_hook in
+      # noctalia-settings.toml.
+      (writeShellApplication {
+        name = "keyboard-backlight-sync";
+        runtimeInputs = [config.programs.noctalia.package];
+        text = builtins.readFile ./scripts/keyboard-backlight-sync;
+      })
     ];
 
     fonts.fontconfig.enable = true;
@@ -124,6 +132,9 @@
 
     xdg.configFile."backgrounds/default".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds/default";
+
+    xdg.configFile."noctalia/templates/keyboard-backlight-mode.tmpl".source =
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/keyboard-backlight-mode.tmpl";
 
     xdg.stateFile."noctalia/settings.toml".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/noctalia-settings.toml";

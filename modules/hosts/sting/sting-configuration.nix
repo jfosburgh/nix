@@ -1,37 +1,5 @@
-{...}: {
+{self, ...}: {
   flake.nixosModules.sting-configuration = {pkgs, ...}: let
-    # If the other user (james <-> work) already has a live session on this
-    # seat, jump straight to it -- no greeter, no re-auth. Otherwise fall
-    # back to handing the seat to the SDDM greeter. loginctl activate is
-    # authorized for any locally-active user (polkit's allow_active), so
-    # this needs no privilege escalation.
-    switchSession = pkgs.writeShellApplication {
-      name = "switch-session";
-      runtimeInputs = [pkgs.systemd pkgs.dbus pkgs.gawk];
-      text = ''
-        other=""
-        case "$(whoami)" in
-          james) other=work ;;
-          work) other=james ;;
-        esac
-
-        session=""
-        if [[ -n $other ]]; then
-          session=$(loginctl list-sessions --no-legend \
-            | awk -v u="$other" '$3 == u && $6 == "user" { print $1; exit }')
-        fi
-
-        if [[ -n $session ]]; then
-          loginctl activate "$session"
-        else
-          dbus-send --system --print-reply \
-            --dest=org.freedesktop.DisplayManager \
-            /org/freedesktop/DisplayManager/Seat0 \
-            org.freedesktop.DisplayManager.Seat.SwitchToGreeter
-        fi
-      '';
-    };
-
     # SDDM's per-user "remember last session" (via AccountsService) isn't
     # reliable here -- it silently launched hyprland for work's login
     # despite weeks of correctly remembering gnome. Rather than depend on
@@ -75,7 +43,7 @@
       mkdir -p $out/share/wayland-sessions
       cat > $out/share/wayland-sessions/auto.desktop <<EOF
       [Desktop Entry]
-      Name=Auto (per-user)
+      Name=Auto
       Comment=Launches Hyprland for james, GNOME for work
       Exec=${sessionDispatch}/bin/session-dispatch
       Type=Application
@@ -83,33 +51,29 @@
       EOF
     '';
   in {
-    networking.hostName = "sting";
+    imports = [self.nixosModules.vt-fast-switch];
 
-    # Stable path (unlike the store path, survives generation switches)
-    # for both james's Hyprland keybind and work's GNOME custom shortcut
-    # to invoke.
-    environment.systemPackages = [switchSession];
+    networking.hostName = "sting";
 
     boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
     services.displayManager.sessionPackages = [autoSession];
     services.displayManager.defaultSession = "auto";
 
+    # Base noctalia-greeter setup lives in modules/core/graphical.nix.
+    services.displayManager.noctalia-greeter.settings.session.default = "Auto";
+
     services.xserver.enable = true;
     services.desktopManager.gnome.enable = true;
 
+    # noctalia-greeter's own PAM stack isn't wired to fprintd yet -- password
+    # only there for now.
     security.pam.services.login.fprintAuth = true;
     security.pam.services.sudo.fprintAuth = true;
-    security.pam.services.sddm.fprintAuth = true;
     security.pam.services.hyprlock.fprintAuth = true;
 
-    # sddm's login PAM stack substacks "login", so the fprintd rule that
-    # actually matters for the login screen lives there. Same structure
-    # for sudo/hyprlock. fprintd runs first (sufficient) so touching the
-    # reader logs in immediately at any time; without a timeout it blocks
-    # indefinitely, so a typed password never got checked until the
-    # reader was touched. The timeout bounds that: after 5s with no scan,
-    # it falls through to the password check.
+    # Without a timeout, fprintd blocks indefinitely and a typed password
+    # never gets checked until the reader is touched.
     security.pam.services.login.rules.auth.fprintd.settings.timeout = 5;
     security.pam.services.sudo.rules.auth.fprintd.settings.timeout = 5;
     security.pam.services.hyprlock.rules.auth.fprintd.settings.timeout = 5;
