@@ -38,18 +38,52 @@
       devtools
       agents
       direnv
+      yazi
     ]);
 
-  desktopApps = with self.homeModules; [
-    ghostty
-    zen
-    discord
-    helium
-    vlc
-    hyprland
-    localsend
-    beancount
-  ];
+  desktopApps =
+    (with self.homeModules; [
+      ghostty
+      zen
+      discord
+      helium
+      vlc
+      imv
+      hyprland
+      localsend
+      beancount
+    ])
+    ++ [
+      ({...}: {
+        # Without this, opening an image (e.g. from yazi or a file manager)
+        # falls through to whichever .desktop file claims image/* first --
+        # here that was helium (the browser), not an actual image viewer.
+        xdg.mimeApps = {
+          enable = true;
+          defaultApplications = let
+            imv = "imv.desktop";
+            imageMimeTypes = [
+              "image/avif"
+              "image/bmp"
+              "image/gif"
+              "image/heif"
+              "image/jpeg"
+              "image/jxl"
+              "image/png"
+              "image/qoi"
+              "image/svg+xml"
+              "image/tiff"
+              "image/webp"
+            ];
+          in
+            builtins.listToAttrs (map (mime: {
+                name = mime;
+                value = imv;
+              })
+              imageMimeTypes);
+        };
+      })
+    ];
 
   desktopOnly = with self.homeModules; [
     vintagestory

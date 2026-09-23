@@ -29,7 +29,14 @@
       passwordless-sync-users =
         ["james"] ++ lib.optional (config.users.users ? work) "work";
       settings = {
-        appearance.scheme = "Synced";
+        appearance = {
+          scheme = "Synced";
+          hide_logo = true;
+          # Matches the shell's own corner_radius_scale in
+          # noctalia-settings.toml, not Hyprland's window rounding (a
+          # different, pixel-based unit).
+          corner_radius_scale = 0.3;
+        };
         cursor.theme = "Bibata-Original-Classic";
       };
     };

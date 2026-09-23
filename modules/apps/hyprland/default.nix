@@ -79,6 +79,15 @@
 
     home.packages = with pkgs; [
       nautilus
+      wl-clipboard
+
+      # gsettings has icon-theme = "Papirus-Dark" (set outside nix, in
+      # dconf) but the theme was never actually installed -- it only
+      # existed in the store as a transitive build dep, unlinked from
+      # ~/.nix-profile/share/icons. GTK apps (nautilus) silently fell back
+      # to hicolor/Adwaita for icons missing from that pair (starred,
+      # user-trash, ...).
+      papirus-icon-theme
 
       inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
 

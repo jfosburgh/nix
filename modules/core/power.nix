@@ -9,7 +9,10 @@
       upower.enable = true;
     };
 
-    services.logind.settings.Login.HandlePowerKey = lib.mkDefault "suspend-then-hibernate";
+    # Hyprland binds the physical power key directly (see
+    # modules/apps/hyprland/config/conf/bindings.lua) to noctalia's
+    # lock-and-suspend action, so logind should stay out of the way here.
+    services.logind.settings.Login.HandlePowerKey = lib.mkDefault "ignore";
 
     # gvfsd-fuse mounts (Nautilus network shares, MTP phones) can block in
     # uninterruptible sleep during the kernel's pre-suspend process freeze,

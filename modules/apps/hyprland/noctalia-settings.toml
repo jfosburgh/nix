@@ -40,7 +40,7 @@ up = [ "Up", "Ctrl+k", "Ctrl+p" ]
 auto_locate = true
 
 [lockscreen_widgets]
-enabled = false
+enabled = true
 schema_version = 2
 widget_order = [ "lockscreen-login-box@eDP-1" ]
 
@@ -63,7 +63,7 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
         [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
         background_color = "surface_variant"
         background_opacity = 0.88
-        background_radius = 12.0
+        background_radius = 6.0
         center_password_text = false
         input_opacity = 1.0
         input_radius = 6.0
@@ -91,6 +91,9 @@ font_family = "IosevkaTerm Nerd Font Mono"
 
     [shell.screen_corners]
     size = 6
+
+    [shell.screenshot]
+    directory = "/home/james/Pictures/Screenshots"
 
 [theme]
 builtin = "Kanagawa"

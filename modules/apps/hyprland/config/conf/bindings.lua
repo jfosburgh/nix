@@ -21,9 +21,10 @@ hl.bind(key("F"), hl.dsp.window.fullscreen())
 hl.bind(key("B"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle control-center"))
 hl.bind(key("S"), hl.dsp.exec_cmd(noctaliaIpc .. "screenshot-region"))
 hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd(noctaliaIpc .. "session lock"))
+hl.bind(key("SHIFT + P"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle session"))
 -- Fuzzy-search nixpkgs and drop into a nix shell with the selected package.
 hl.bind(key("P"), hl.dsp.exec_cmd(floatTerm .. " nix-search-shell"))
-hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd("slack"))
+hl.bind(key("SHIFT + S"), hl.dsp.exec_cmd(noctaliaIpc .. "screenshot-annotate"))
 hl.bind(key("SHIFT + B"), hl.dsp.exec_cmd("pkill kanata || kanata"))
 hl.bind(key("I"), hl.dsp.exec_cmd(noctaliaIpc .. "caffeine-toggle"))
 hl.bind(key("T"), hl.dsp.exec_cmd("launch-floating-terminal-keepalive"))
@@ -82,5 +83,7 @@ local mediaPlayerKeys = {
 for _, pk in ipairs(mediaPlayerKeys) do
 	hl.bind(pk[1], hl.dsp.exec_cmd(noctaliaIpc .. "media " .. pk[2]), { locked = true })
 end
+
+hl.bind("XF86PowerOff", hl.dsp.exec_cmd(noctaliaIpc .. "session lock-and-suspend"), { locked = true })
 
 -- hl.bind("switch:Lid Switch", hl.dsp.exec_cmd("systemctl suspend-then-hibernate"), { locked = true })

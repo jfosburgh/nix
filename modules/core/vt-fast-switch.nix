@@ -29,7 +29,10 @@
             loginctl activate "$session"
           else
             case "$(cat /sys/class/tty/tty0/active)" in
-              tty1) chvt 2 ;;
+              tty1)
+                systemctl start greetd-vt2.service
+                chvt 2
+                ;;
               *) chvt 1 ;;
             esac
           fi
@@ -50,14 +53,18 @@
     # Mirrors NixOS's own greetd service (nixos/modules/services/
     # display-managers/greetd.nix) but for tty2 instead of the hardcoded
     # tty1, and without initial_session (autologin, if any, is VT1-only).
+    #
+    # Not wantedBy graphical.target: starting both greeters at boot races
+    # them for the initially-active VT, which has been observed to leave one
+    # greeter's client dead with no self-recovery (session paused mid-init,
+    # PAM conversation broken, sometimes even landing the VT1 login on tty2).
+    # Instead this only starts on the first switch-session call that needs
+    # it, by which point greetd.service already owns tty1 and there's
+    # nothing left to race for.
     systemd.services."autovt@tty2".enable = false;
     systemd.services.greetd-vt2 = {
       unitConfig = {
         Wants = ["systemd-user-sessions.service"];
-        # After greetd.service (not just Wants): starting both greeters at
-        # the same instant races them for the initially-active VT, which has
-        # been observed to leave greetd-vt2's greeter client dead with no
-        # self-recovery (session paused mid-init, PAM conversation broken).
         After = ["systemd-user-sessions.service" "getty@tty2.service" "greetd.service"];
         Conflicts = ["getty@tty2.service"];
       };
@@ -68,7 +75,15 @@
             (builtins.removeAttrs config.services.greetd.settings ["initial_session"])
             // {terminal.vt = 2;};
         in "${lib.getExe config.services.greetd.package} --config ${toml.generate "greetd-vt2.toml" settings}";
-        Restart = "on-success";
+        # Not on-success: this greeter's compositor refuses to acquire the
+        # DRM device until logind reports tty2 as the *active* VT. Once a
+        # session on VT2 ends and nobody switches back there, an
+        # auto-restart just times out waiting for that after 10s and
+        # crash-loops forever (visible as periodic flicker on the actual
+        # active VT). switch-session already starts this unit on demand
+        # right before chvt-ing to it, which is when VT2 can actually
+        # become active -- no self-restart needed.
+        Restart = "no";
         IgnoreSIGPIPE = false;
         SendSIGHUP = true;
         TimeoutStopSec = "30s";
@@ -76,8 +91,21 @@
         Type = "idle";
       };
       restartIfChanged = false;
-      wantedBy = ["graphical.target"];
     };
+
+    # Lets switch-session (running unprivileged as james/work) start
+    # greetd-vt2 on demand without a password prompt.
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.freedesktop.systemd1.manage-units" &&
+            action.lookup("unit") == "greetd-vt2.service" &&
+            action.lookup("verb") == "start" &&
+            subject.local && subject.active &&
+            (subject.user == "james" || subject.user == "work")) {
+          return polkit.Result.YES;
+        }
+      });
+    '';
 
     # Logging out doesn't otherwise return focus anywhere -- it just leaves
     # you on that VT's now-empty greeter. Watch for a session ending and, if
