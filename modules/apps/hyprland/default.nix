@@ -121,6 +121,12 @@
         text = builtins.readFile ./scripts/nix-search-shell;
       })
 
+      (writeShellApplication {
+        name = "rbw-menu";
+        runtimeInputs = [rbw fzf wl-clipboard];
+        text = builtins.readFile ./scripts/rbw-menu;
+      })
+
       # Driven by theme.templates.user.keyboard_backlight's post_hook in
       # noctalia-settings.toml.
       (writeShellApplication {

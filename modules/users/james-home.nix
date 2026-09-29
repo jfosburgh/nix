@@ -39,6 +39,7 @@
       agents
       direnv
       yazi
+      rbw
     ]);
 
   desktopApps =

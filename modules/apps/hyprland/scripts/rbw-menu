@@ -1,0 +1,11 @@
+name=$(rbw list | fzf --prompt="Entry: ")
+[ -n "$name" ] || exit 0
+
+field=$(printf 'password\nusername\ntotp\n' | fzf --prompt="Field: ")
+[ -n "$field" ] || exit 0
+
+case "$field" in
+password) rbw get "$name" | wl-copy ;;
+username) rbw get "$name" --field username | wl-copy ;;
+totp) rbw code "$name" | wl-copy ;;
+esac

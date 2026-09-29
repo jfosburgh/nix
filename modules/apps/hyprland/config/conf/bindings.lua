@@ -29,6 +29,7 @@ hl.bind(key("T"), hl.dsp.exec_cmd("launch-floating-terminal-keepalive"))
 hl.bind(key("X"), hl.dsp.workspace.move({ monitor = "+1" }))
 hl.bind(key("SHIFT + V"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle clipboard"))
 hl.bind(key("SHIFT + U"), hl.dsp.exec_cmd("/run/current-system/sw/bin/switch-session"))
+hl.bind(key("R"), hl.dsp.exec_cmd(floatTerm .. " rbw-menu"))
 
 -- Web-app shortcuts
 local webApps = {
