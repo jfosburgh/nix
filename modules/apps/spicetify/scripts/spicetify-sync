@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# spicetify rewrites Spotify's Apps/xpui.spa in place, so it cannot run
+# against the read-only store path. Mirror the store's share/spotify into a
+# writable tree, materialising only the two things spicetify touches
+# (.spotify-wrapped, which it patches to block self-updates, and Apps/) and
+# symlinking the remaining ~300MB of resources back into the store.
+spotify_share="${SPOTIFY_SHARE:?}"
+spotify_tree="${SPOTIFY_TREE:?}"
+comfy_src="${COMFY_SRC:?}"
+spice_config="${SPICE_CONFIG:?}"
+
+spice_state="${XDG_STATE_HOME:-$HOME/.local/state}/spicetify"
+theme_dir="$spice_config/Themes/Comfy"
+prefs="${XDG_CONFIG_HOME:-$HOME/.config}/spotify/prefs"
+stamp="$spotify_tree/.nix-store-path"
+
+rebuilt=0
+if [ "$(cat "$stamp" 2>/dev/null || true)" != "$spotify_share" ]; then
+	# The backup under $spice_state describes the previous Spotify version's
+	# app files, so it has to go with the tree it was taken from.
+	rm -rf "$spotify_tree" "$spice_state"
+	mkdir -p "$spotify_tree"
+
+	for entry in "$spotify_share"/* "$spotify_share"/.[!.]*; do
+		name="$(basename "$entry")"
+		case "$name" in
+		Apps | .spotify-wrapped) cp -rL "$entry" "$spotify_tree/$name" ;;
+		*) ln -s "$entry" "$spotify_tree/$name" ;;
+		esac
+	done
+
+	chmod -R u+w "$spotify_tree/Apps" "$spotify_tree/.spotify-wrapped"
+	printf '%s\n' "$spotify_share" >"$stamp"
+	rebuilt=1
+fi
+
+mkdir -p "$theme_dir" "$spice_config/Extensions" "$(dirname "$prefs")"
+touch "$prefs"
+
+# color.ini is the one file noctalia's spicetify template owns -- it rewrites
+# it on every palette change -- so refresh the rest of Comfy around it and
+# only seed it (Comfy's own first scheme is also called "Comfy") when noctalia
+# has not written one yet.
+find "$theme_dir" -mindepth 1 -maxdepth 1 ! -name color.ini -exec rm -rf {} +
+for entry in "$comfy_src"/*; do
+	name="$(basename "$entry")"
+	[ "$name" = "color.ini" ] && continue
+	cp -rL "$entry" "$theme_dir/$name"
+done
+[ -e "$theme_dir/color.ini" ] || cp -L "$comfy_src/color.ini" "$theme_dir/color.ini"
+chmod -R u+w "$theme_dir"
+
+# Comfy ships its behaviour as an extension rather than a theme script, and
+# theme.script.js is the part that would otherwise phone home for updates.
+{
+	cat "$comfy_src/theme.js"
+	printf '\n'
+	cat "$comfy_src/theme.script.js"
+} >"$spice_config/Extensions/theme.js"
+
+cat >"$spice_config/config-xpui.ini" <<EOF
+[Setting]
+spotify_path = $spotify_tree
+prefs_path = $prefs
+current_theme = Comfy
+color_scheme = Comfy
+spotify_launch_flags =
+check_spicetify_update = 0
+always_enable_devtools = 0
+inject_css = 1
+inject_theme_js = 1
+replace_colors = 1
+overwrite_assets = 1
+custom_apps =
+extensions = theme.js
+
+[Preprocesses]
+disable_upgrade_check = 1
+disable_sentry = 1
+disable_ui_logging = 1
+remove_rtl_rule = 1
+expose_apis = 1
+
+[AdditionalOptions]
+home_config = 1
+sidebar_config = 1
+experimental_features = 0
+EOF
+
+if [ "$rebuilt" = 1 ]; then
+	spicetify -q backup apply --no-restart
+else
+	spicetify -q apply --no-restart
+fi

@@ -1,17 +1,35 @@
 {...}: {
   flake.nixosModules.zsh = {pkgs, ...}: {
     programs.zsh.enable = true;
+
+    # /etc/zshrc otherwise runs a second, full compinit on top of the cached
+    # one home-manager installs, costing ~0.12s per shell. enableCompletion
+    # stays on so /share/zsh keeps being linked into the system profile.
+    programs.zsh.enableGlobalCompInit = false;
   };
 
   flake.homeModules.zsh = {pkgs, ...}: {
     programs.zsh = {
       enable = true;
 
-      oh-my-zsh = {
-        enable = true;
-        theme = "robbyrussell";
-        plugins = ["git" "sudo" "copyfile" "copybuffer"];
-      };
+      # Full compinit rescans ~3100 completion files, audits them and rewrites
+      # the dump on every start; -C trusts the existing dump and skips all of
+      # it. The age test's glob qualifier needs extended_glob, so it runs in an
+      # anonymous function that scopes the option -- without that the qualifier
+      # is literal text, the test is always true, and the slow path always
+      # wins. Rescan at most daily so newly installed completions still appear.
+      completionInit = ''
+        autoload -Uz compinit
+        _zc=''${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump
+        if () { emulate -L zsh -o extended_glob; [[ -f $_zc && -z ''${_zc}(#qN.mh+24) ]] }; then
+          compinit -C -d $_zc
+        else
+          [[ -d ''${_zc:h} ]] || mkdir -p ''${_zc:h}
+          compinit -d $_zc
+          zcompile -R -- $_zc 2>/dev/null
+        fi
+        unset _zc
+      '';
 
       plugins = [
         {
@@ -36,6 +54,7 @@
         source ${./envs}
         source ${./aliases}
         source ${./functions}
+        source ${./interactive}
       '';
     };
 

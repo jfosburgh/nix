@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "${1:-}" in
+dark) prefer_dark=1 ;;
+light) prefer_dark=0 ;;
+*)
+	echo "gtk-dark-mode-sync: unknown mode '${1:-}'" >&2
+	exit 1
+	;;
+esac
+
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# GTK3 (and GTK4 apps not reading the portal's color-scheme directly) only
+# check this legacy property -- current gsettings-desktop-schemas dropped it
+# from org.gnome.desktop.interface, so it must be set here instead.
+for toolkit_dir in gtk-3.0 gtk-4.0; do
+	mkdir -p "$config_home/$toolkit_dir"
+	printf '[Settings]\ngtk-application-prefer-dark-theme=%s\n' "$prefer_dark" \
+		>"$config_home/$toolkit_dir/settings.ini"
+done

@@ -1,0 +1,80 @@
+# Ported from oh-my-zsh, which was dropped because sourcing it cost ~0.26s of
+# every shell start. Only the behavior that is noticeable in daily use is kept;
+# the git alias set is omitted because it was never used.
+
+zmodload -i zsh/complist
+
+WORDCHARS=''
+
+unsetopt menu_complete flowcontrol
+setopt auto_menu complete_in_word always_to_end
+
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' use-cache yes
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USERNAME -o pid,user,comm -w -w"
+
+bindkey -e
+
+# Up/down search history for entries matching what is already typed, rather
+# than walking it blindly.
+autoload -U up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+[[ -n ${terminfo[kcuu1]} ]] && bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+[[ -n ${terminfo[kcud1]} ]] && bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+
+[[ -n ${terminfo[khome]} ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n ${terminfo[kend]}  ]] && bindkey "${terminfo[kend]}"  end-of-line
+[[ -n ${terminfo[kdch1]} ]] && bindkey "${terminfo[kdch1]}" delete-char
+[[ -n ${terminfo[kcbt]}  ]] && bindkey "${terminfo[kcbt]}"  reverse-menu-complete
+bindkey '^?' backward-delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# Terminals send the application-mode sequences above only while smkx is set.
+if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+  function zle-line-init() { echoti smkx }
+  function zle-line-finish() { echoti rmkx }
+  zle -N zle-line-init
+  zle -N zle-line-finish
+fi
+
+# ESC ESC toggles a sudo prefix on the current line (oh-my-zsh's sudo plugin).
+sudo-command-line() {
+  [[ -z $BUFFER ]] && zle up-history
+  if [[ $BUFFER == sudo\ * ]]; then
+    LBUFFER="${LBUFFER#sudo }"
+  else
+    LBUFFER="sudo $LBUFFER"
+  fi
+}
+zle -N sudo-command-line
+bindkey '\e\e' sudo-command-line
+
+# Ctrl+O copies the current line to the clipboard (oh-my-zsh's copybuffer).
+# Upstream routed this through its clipcopy shim; wl-copy is the only backend
+# that shim would have picked here.
+copy-buffer-to-clipboard() {
+  if (( $+commands[wl-copy] )); then
+    printf '%s' "$BUFFER" | wl-copy
+  else
+    zle -M "wl-copy not found"
+  fi
+}
+zle -N copy-buffer-to-clipboard
+bindkey '^O' copy-buffer-to-clipboard
+
+# Window title: oh-my-zsh's termsupport showed the cwd while idle and the
+# running command otherwise. Without this, titles fall back to user@host:dir.
+autoload -Uz add-zsh-hook
+_zsh_title_precmd() { print -Pn "\e]2;%~\a" }
+_zsh_title_preexec() { print -Pn "\e]2;%~ \$ ${1//\%/%%}\a" }
+add-zsh-hook precmd _zsh_title_precmd
+add-zsh-hook preexec _zsh_title_preexec

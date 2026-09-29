@@ -49,6 +49,7 @@
       helium
       vlc
       imv
+      spicetify
       hyprland
       localsend
       beancount

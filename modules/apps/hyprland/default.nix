@@ -77,16 +77,20 @@
       };
     };
 
+    # GTK walks the selected icon theme's full Inherits chain on every
+    # window open. Papirus-Dark inherits breeze-dark, a 40MB tree that
+    # ships no icon-theme.cache, so each miss became a directory scan --
+    # ~1.4s per ghostty window. Adwaita inherits only hicolor.
+    dconf.settings."org/gnome/desktop/interface".icon-theme = "Adwaita";
+
     home.packages = with pkgs; [
-      nautilus
       wl-clipboard
 
-      # gsettings has icon-theme = "Papirus-Dark" (set outside nix, in
-      # dconf) but the theme was never actually installed -- it only
-      # existed in the store as a transitive build dep, unlinked from
-      # ~/.nix-profile/share/icons. GTK apps (nautilus) silently fell back
-      # to hicolor/Adwaita for icons missing from that pair (starred,
-      # user-trash, ...).
+      # Kept for noctalia's "papirus-icons" theme template, not for GTK --
+      # GTK's icon-theme is Adwaita (see dconf.settings above). Selecting
+      # Papirus-Dark here drags in its breeze-dark inherit and costs ~1.4s
+      # per window; it is also the only theme installed that carries
+      # "starred", which GTK apps now render as a missing icon.
       papirus-icon-theme
 
       inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
@@ -124,6 +128,13 @@
         runtimeInputs = [config.programs.noctalia.package];
         text = builtins.readFile ./scripts/keyboard-backlight-sync;
       })
+
+      # Driven by theme.templates.user.gtk_dark_mode's post_hook in
+      # noctalia-settings.toml.
+      (writeShellApplication {
+        name = "gtk-dark-mode-sync";
+        text = builtins.readFile ./scripts/gtk-dark-mode-sync;
+      })
     ];
 
     fonts.fontconfig.enable = true;
@@ -144,6 +155,9 @@
 
     xdg.configFile."noctalia/templates/keyboard-backlight-mode.tmpl".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/keyboard-backlight-mode.tmpl";
+
+    xdg.configFile."noctalia/templates/gtk-dark-mode.tmpl".source =
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/gtk-dark-mode.tmpl";
 
     xdg.stateFile."noctalia/settings.toml".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/noctalia-settings.toml";

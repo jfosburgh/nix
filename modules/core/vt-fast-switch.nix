@@ -33,7 +33,10 @@
                 systemctl start greetd-vt2.service
                 chvt 2
                 ;;
-              *) chvt 1 ;;
+              *)
+                systemctl start greetd.service
+                chvt 1
+                ;;
             esac
           fi
         '';
@@ -49,6 +52,15 @@
       capabilities = "cap_sys_tty_config,cap_dac_override+ep";
       source = "${pkgs.kbd}/bin/chvt";
     };
+
+    # Same crash-loop as greetd-vt2 below, in the other direction: when the
+    # VT1 session ends while a session on VT2 is still up,
+    # vt-switch-on-logout activates VT2, and VT1's freshly-spawned greeter
+    # then times out waiting for its own VT to go active. NixOS's unit
+    # restarts it on that clean exit, forever. So VT1 is started on demand
+    # too -- at boot by graphical.target, later by switch-session right
+    # before it chvt-s back to VT1.
+    services.greetd.restart = false;
 
     # Mirrors NixOS's own greetd service (nixos/modules/services/
     # display-managers/greetd.nix) but for tty2 instead of the hardcoded
@@ -93,12 +105,12 @@
       restartIfChanged = false;
     };
 
-    # Lets switch-session (running unprivileged as james/work) start
-    # greetd-vt2 on demand without a password prompt.
+    # Lets switch-session (running unprivileged as james/work) start either
+    # greeter on demand without a password prompt.
     security.polkit.extraConfig = ''
       polkit.addRule(function(action, subject) {
         if (action.id == "org.freedesktop.systemd1.manage-units" &&
-            action.lookup("unit") == "greetd-vt2.service" &&
+            ["greetd.service", "greetd-vt2.service"].indexOf(action.lookup("unit")) >= 0 &&
             action.lookup("verb") == "start" &&
             subject.local && subject.active &&
             (subject.user == "james" || subject.user == "work")) {

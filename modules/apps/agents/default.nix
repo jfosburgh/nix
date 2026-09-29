@@ -38,6 +38,10 @@
           # pi-web-access queries SearXNG over GET (?format=json); the upstream
           # default is POST which would 405 those requests.
           method = "GET";
+
+          # Substituted from environmentFile at unit start; keeps the secret
+          # out of the Nix store.
+          secret_key = "\${SEARXNG_SECRET}";
         };
 
         # This SearXNG release gates non-HTML output behind an explicit opt-in;

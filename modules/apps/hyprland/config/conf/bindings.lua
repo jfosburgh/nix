@@ -1,10 +1,8 @@
 local mainMod = "SUPER"
 local terminal = "ghostty"
-local browser = "zen-browser"
-local fileManager = "nautilus"
 local noctaliaIpc = "noctalia msg "
 local menu = noctaliaIpc .. "panel-toggle launcher"
-local webApp = "helium-browser"
+local webApp = "helium"
 local floatTerm = "launch-floating-terminal"
 
 local function key(mods)
@@ -15,7 +13,7 @@ hl.bind(key("RETURN"), hl.dsp.exec_cmd(terminal))
 hl.bind(key("SPACE"), hl.dsp.exec_cmd(menu))
 hl.bind(key("C"), hl.dsp.window.close())
 hl.bind(key("M"), hl.dsp.exec_cmd("uwsm stop"))
-hl.bind(key("E"), hl.dsp.exec_cmd(fileManager))
+hl.bind(key("E"), hl.dsp.exec_cmd(floatTerm .. " yazi"))
 hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"), hl.dsp.window.fullscreen())
 hl.bind(key("B"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle control-center"))

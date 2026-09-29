@@ -12,3 +12,8 @@ keybind = alt+tab=text:\x1b[252~
 
 keybind = ctrl+v=paste_from_clipboard
 copy-on-select = "clipboard"
+
+# Reuse the running process for windows launched from outside ghostty (the
+# Super+Return binding execs a fresh `ghostty`). Halves window-open latency;
+# the trade is that one process backs every window.
+gtk-single-instance = true

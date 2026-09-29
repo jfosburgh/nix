@@ -117,13 +117,19 @@ wallpaper_scheme = "soft"
         "lazygit",
         "tmux",
         "yazi",
-        "bat"
+        "bat",
+        "spicetify"
     ]
 
         [theme.templates.user.keyboard_backlight]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/keyboard-backlight-mode.tmpl"
         output_path = "$XDG_CACHE_HOME/noctalia/keyboard-backlight-mode"
         post_hook = "keyboard-backlight-sync {{ mode }}"
+
+        [theme.templates.user.gtk_dark_mode]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-dark-mode.tmpl"
+        output_path = "$XDG_CACHE_HOME/noctalia/gtk-dark-mode"
+        post_hook = "gtk-dark-mode-sync {{ mode }}"
 
 [wallpaper]
 directory = "/home/james/.config/backgrounds"
