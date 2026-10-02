@@ -110,6 +110,17 @@
         text = builtins.readFile ./scripts/launch-floating-terminal-keepalive;
       })
 
+      # launch-floating-terminal re-joins its args into one string for
+      # `zsh -c`, which mangles a single path argument containing spaces
+      # (e.g. a drive label like "Extreme SSD") -- this passes the path
+      # through as a real argv entry instead. Used as udiskie's
+      # file_manager (modules/apps/udiskie/default.nix).
+      (writeShellApplication {
+        name = "launch-floating-yazi";
+        runtimeInputs = [ghostty yazi];
+        text = builtins.readFile ./scripts/launch-floating-yazi;
+      })
+
       (writeShellApplication {
         name = "hyprpolkitagent";
         text = "exec ${hyprpolkitagent}/libexec/hyprpolkitagent";

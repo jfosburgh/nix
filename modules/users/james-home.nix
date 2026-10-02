@@ -54,6 +54,7 @@
       hyprland
       localsend
       beancount
+      udiskie
     ])
     ++ [
       ({...}: {
