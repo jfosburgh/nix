@@ -9,22 +9,29 @@
     modelsPreset = pkgs.writeText "llama-cpp-presets.ini" ''
       version = 1
 
-      [qwen38-q3]
-      n-gpu-layers = 99
+      [*]
+      load-mode = none
       ctx-size = 131072
-      flash-attn = on
-      mmproj-auto = off
-      repeat-penalty = 1.05
-      repeat-last-n = 512
-      hf-repo = unsloth/Qwen3.8-27B-GGUF:UD-IQ3_XXS
-      temp = 1.0
+      fit = on
+      fitt = 4096
+      fit-ctx = 131072
+      fa = on
+      reasoning-preserve = true
+      temp = 0.6
       top-p = 0.95
       top-k = 20
-      cache-type-k = q5_1
-      cache-type-v = q5_1
-      spec-type = draft-mtp,ngram-mod
-      spec-draft-n-max = 2
-      parallel = 1
+      min-p = 0.0
+      repeat-penalty = 1.0
+      ngl = -1
+      np = 1
+
+      [qwen38-q4]
+      hf-repo = unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS
+      ctx-size = 112000
+      presence-penalty = 0.0
+      cache-type-k = q4_0
+      cache-type-v = q4_0
+      t = 8
     '';
   in {
     services.llama-cpp = {

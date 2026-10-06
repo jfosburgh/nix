@@ -6,13 +6,13 @@
       "apiKey": "llama-cpp",
       "models": [
         {
-          "id": "qwen38-q3",
-          "contextWindow": 131072,
+          "id": "qwen38-q4",
+          "contextWindow": 112000,
           "maxTokens": 32768
         }
       ],
       "modelOverrides": {
-        "qwen38-q3": {
+        "qwen38-q4": {
           "reasoning": true,
           "thinkingLevelMap": {
             "minimal": null,
