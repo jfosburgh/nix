@@ -57,10 +57,16 @@
     # VT1 session ends while a session on VT2 is still up,
     # vt-switch-on-logout activates VT2, and VT1's freshly-spawned greeter
     # then times out waiting for its own VT to go active. NixOS's unit
-    # restarts it on that clean exit, forever. So VT1 is started on demand
-    # too -- at boot by graphical.target, later by switch-session right
-    # before it chvt-s back to VT1.
-    services.greetd.restart = false;
+    # restarts it on that clean exit, forever -- visible as periodic
+    # flicker on whichever VT is actually active. So VT1 is started on
+    # demand too -- at boot by graphical.target, later by switch-session
+    # right before it chvt-s back to VT1.
+    #
+    # services.greetd.restart only controls restartIfChanged (a rebuild
+    # retriggering the unit), not this runtime Restart= policy -- it does
+    # not stop the crash loop. serviceConfig.Restart is the actual knob,
+    # same as greetd-vt2's below.
+    systemd.services.greetd.serviceConfig.Restart = lib.mkForce "no";
 
     # Mirrors NixOS's own greetd service (nixos/modules/services/
     # display-managers/greetd.nix) but for tty2 instead of the hardcoded

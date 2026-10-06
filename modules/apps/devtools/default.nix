@@ -9,6 +9,7 @@
       rsync
       jq
       btop
+	  unzip
       nvtopPackages.full
 
       devenv

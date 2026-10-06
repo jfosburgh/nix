@@ -61,7 +61,7 @@
 
     nix.settings.trusted-users = ["root" "james"];
 
-    services.journald.extraConfig = "SystemMaxUse=50M";
+    services.journald.settings.Journal.SystemMaxUse = "50M";
 
     system.stateVersion = "25.11";
   };
