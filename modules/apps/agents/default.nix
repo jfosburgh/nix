@@ -15,7 +15,7 @@
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/models.json";
 
     home.sessionVariables = {
-      LLAMA_BASE_URL = "http://127.0.0.1:8080";
+      LLAMA_BASE_URL = "http://127.0.0.1:11434";
 
       # Local SearXNG backend for pi-web-access' web_search (auto mode prefers it).
       SEARXNG_BASE_URL = "http://127.0.0.1:8888";

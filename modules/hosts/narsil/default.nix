@@ -14,7 +14,7 @@
       james
       nix-ld
       steam
-      llama-cpp
+      ollama
       agents
     ];
   };
