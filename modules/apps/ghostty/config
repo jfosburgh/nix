@@ -1,3 +1,4 @@
+# Noctalia renders this theme separately; it must not rewrite this config.
 theme = noctalia
 font-family = "IosevkaTerm Nerd Font"
 font-size = 14

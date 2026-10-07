@@ -6,5 +6,9 @@ require("./conf/looknfeel.lua")
 require("./conf/monitors.lua")
 require("./conf/rules.lua")
 
--- For Noctalia Color templates
-require("noctalia").apply_theme()
+-- Noctalia renders the ignored noctalia.lua, not this tracked config.
+-- On a fresh install the theme may not have been generated yet.
+local has_theme, theme = pcall(require, "noctalia")
+if has_theme then
+    theme.apply_theme()
+end

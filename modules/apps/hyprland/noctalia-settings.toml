@@ -24,10 +24,6 @@ show_on_workspace_switch = false
 smart_auto_hide = true
 start = [ "workspaces" ]
 
-[brightness]
-enable_ddcutil = true
-sync_all_monitors = true
-
 [dock]
 enabled = false
 
@@ -134,7 +130,9 @@ source = "community"
 wallpaper_scheme = "soft"
 
     [theme.templates]
-    builtin_ids = [ "btop", "gtk3", "gtk4", "ghostty", "hyprland", "qt", "starship" ]
+    # Custom render-only templates below avoid the builtin apply/undo hooks,
+    # which edit tracked application configs when the theme changes.
+    builtin_ids = [ "btop", "gtk3", "gtk4", "qt", "starship" ]
     community_ids = [
         "claude-code",
         "pi-agent",
@@ -151,6 +149,16 @@ wallpaper_scheme = "soft"
         "bat",
         "spicetify"
     ]
+
+        [theme.templates.user.ghostty]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/ghostty.tmpl"
+        output_path = "$XDG_CONFIG_HOME/ghostty/themes/noctalia"
+        post_hook = "bash $XDG_CONFIG_HOME/noctalia/templates/ghostty-reload.sh"
+
+        [theme.templates.user.hyprland]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/hyprland.tmpl"
+        output_path = "$XDG_CONFIG_HOME/hypr/noctalia.lua"
+        post_hook = "hyprctl reload"
 
         [theme.templates.user.gtk_dark_mode]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-dark-mode.tmpl"
@@ -182,7 +190,6 @@ show_label = false
 
 [widget.brightness]
 show_label = false
-tool = "ddcutil"
 
 [widget.media]
 hide_when_no_media = true

@@ -176,6 +176,15 @@
     xdg.configFile."backgrounds".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds";
 
+    # Use upstream color templates without their config-rewriting apply/undo
+    # hooks. Only generated output changes; the app configs remain tracked.
+    xdg.configFile."noctalia/templates/ghostty.tmpl".source =
+      "${config.programs.noctalia.package}/share/noctalia/assets/templates/ghostty/ghostty";
+    xdg.configFile."noctalia/templates/ghostty-reload.sh".source =
+      "${config.programs.noctalia.package}/share/noctalia/assets/templates/ghostty/reload.sh";
+    xdg.configFile."noctalia/templates/hyprland.tmpl".source =
+      "${config.programs.noctalia.package}/share/noctalia/assets/templates/hyprland/hyprland.lua";
+
     xdg.configFile."noctalia/templates/keyboard-backlight-mode.tmpl".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/keyboard-backlight-mode.tmpl";
 
