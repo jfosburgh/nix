@@ -173,8 +173,8 @@
     xdg.configFile.hypr.source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/config";
 
-    xdg.configFile."backgrounds/default".source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds/default";
+    xdg.configFile."backgrounds".source =
+      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/backgrounds";
 
     xdg.configFile."noctalia/templates/keyboard-backlight-mode.tmpl".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/hyprland/keyboard-backlight-mode.tmpl";
