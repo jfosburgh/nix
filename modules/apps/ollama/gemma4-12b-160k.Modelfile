@@ -1,0 +1,4 @@
+# Recreate after pulling an updated gemma4:12b:
+# ollama create gemma4-12b-160k -f modules/apps/ollama/gemma4-12b-160k.Modelfile
+FROM gemma4:12b
+PARAMETER num_ctx 163840

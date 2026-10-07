@@ -26,6 +26,12 @@
         devices = [];
         configFile = ./kanata.kbd;
       };
+
+      # Matches by device name so Bluetooth reconnects can change event numbers.
+      keyboards.mxKeys = {
+        devices = [];
+        configFile = ./mx-keys.kbd;
+      };
     };
   };
 }

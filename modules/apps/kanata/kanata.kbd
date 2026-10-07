@@ -2,6 +2,8 @@
   process-unmapped-keys yes
   linux-continue-if-no-devs-found yes
   linux-dev-names-exclude (
+    ;; Handled by the dedicated MacOS-mode MX Keys configuration.
+    "MX Keys Keyboard"
     "DPB Ferris sweep"
     "DPB Ferris sweep Consumer Control"
     "DPB Ferris sweep System Control"

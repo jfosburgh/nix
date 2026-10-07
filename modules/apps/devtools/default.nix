@@ -10,6 +10,7 @@
       jq
       btop
 	  unzip
+	  bluetui
       nvtopPackages.full
 
       devenv

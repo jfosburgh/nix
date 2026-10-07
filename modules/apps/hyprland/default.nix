@@ -32,6 +32,9 @@
 
     services.gvfs.enable = true;
 
+    # Allow local sessions and the i2c group to control monitors via DDC/CI.
+    hardware.i2c.enable = true;
+
     nix.settings = {
       extra-substituters = ["https://noctalia.cachix.org"];
       extra-trusted-public-keys = ["noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="];
@@ -86,12 +89,15 @@
     home.packages = with pkgs; [
       wl-clipboard
 
+      wl-clipboard
+
       # Kept for noctalia's "papirus-icons" theme template, not for GTK --
       # GTK's icon-theme is Adwaita (see dconf.settings above). Selecting
       # Papirus-Dark here drags in its breeze-dark inherit and costs ~1.4s
       # per window; it is also the only theme installed that carries
       # "starred", which GTK apps now render as a missing icon.
       papirus-icon-theme
+      ddcutil
 
       inputs.hyprland-preview-share-picker.packages.x86_64-linux.default
 
