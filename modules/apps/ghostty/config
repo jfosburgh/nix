@@ -1,5 +1,6 @@
-# Noctalia renders this theme separately; it must not rewrite this config.
-theme = noctalia
+# Noctalia renders colors separately. An optional include also avoids the
+# old builtin template's undo hook, which removes `theme = noctalia`.
+config-file = ?themes/noctalia
 font-family = "IosevkaTerm Nerd Font"
 font-size = 14
 
