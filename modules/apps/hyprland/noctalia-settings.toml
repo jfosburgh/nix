@@ -24,6 +24,10 @@ show_on_workspace_switch = false
 smart_auto_hide = true
 start = [ "workspaces" ]
 
+[brightness]
+enable_ddcutil = true
+sync_all_monitors = true
+
 [dock]
 enabled = false
 
