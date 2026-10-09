@@ -107,6 +107,7 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@eDP-1" ]
 enabled = true
 
 [shell]
+avatar_path = "/home/james/.config/backgrounds/mountain-forest.jpg"
 corner_radius_scale = 0.30000000447034836
 font_family = "IosevkaTerm Nerd Font Mono"
 
@@ -130,8 +131,6 @@ source = "community"
 wallpaper_scheme = "soft"
 
     [theme.templates]
-    # Custom render-only templates below avoid the builtin apply/undo hooks,
-    # which edit tracked application configs when the theme changes.
     builtin_ids = [ "btop", "gtk3", "gtk4", "qt", "starship" ]
     community_ids = [
         "claude-code",
@@ -155,15 +154,15 @@ wallpaper_scheme = "soft"
         output_path = "$XDG_CONFIG_HOME/ghostty/themes/noctalia"
         post_hook = "bash $XDG_CONFIG_HOME/noctalia/templates/ghostty-reload.sh"
 
-        [theme.templates.user.hyprland]
-        input_path = "$XDG_CONFIG_HOME/noctalia/templates/hyprland.tmpl"
-        output_path = "$XDG_CONFIG_HOME/hypr/noctalia.lua"
-        post_hook = "hyprctl reload"
-
         [theme.templates.user.gtk_dark_mode]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/gtk-dark-mode.tmpl"
         output_path = "$XDG_CACHE_HOME/noctalia/gtk-dark-mode"
         post_hook = "gtk-dark-mode-sync {{ mode }}"
+
+        [theme.templates.user.hyprland]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/hyprland.tmpl"
+        output_path = "$XDG_CONFIG_HOME/hypr/noctalia.lua"
+        post_hook = "hyprctl reload"
 
         [theme.templates.user.keyboard_backlight]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/keyboard-backlight-mode.tmpl"
@@ -177,6 +176,9 @@ directory = "/home/james/.config/backgrounds"
     path = "/home/james/.config/backgrounds/mountain-forest.jpg"
 
     [wallpaper.last]
+    path = "/home/james/.config/backgrounds/mountain-forest.jpg"
+
+    [wallpaper.monitors.DP-1]
     path = "/home/james/.config/backgrounds/mountain-forest.jpg"
 
     [wallpaper.monitors.eDP-1]

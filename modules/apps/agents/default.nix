@@ -1,4 +1,4 @@
-{...}: {
+{inputs, ...}: {
   flake.homeModules.agents = {
     pkgs,
     config,
@@ -6,7 +6,7 @@
     ...
   }: {
     home.packages = [
-      pkgs.pi-coding-agent
+      inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
       pkgs.claude-code
       pkgs.nodejs
     ];
