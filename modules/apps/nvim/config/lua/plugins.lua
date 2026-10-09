@@ -17,5 +17,6 @@ vim.pack.add({
 	{ src = "https://github.com/nvim-lua/plenary.nvim" },
 	{ src = "https://github.com/MeanderingProgrammer/render-markdown.nvim" },
 	{ src = "https://github.com/kdheepak/lazygit.nvim" },
+	{ src = "https://github.com/akinsho/toggleterm.nvim" },
 	{ src = "https://github.com/christoomey/vim-tmux-navigator" },
 })

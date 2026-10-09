@@ -18,3 +18,13 @@ vim.keymap.set("n", "<C-n>", "<CMD>bn<CR>", { remap = true })
 vim.keymap.set("n", "<C-p>", "<CMD>bp<CR>", { remap = true })
 
 vim.keymap.set("n", "<leader>lg", "<CMD>LazyGit<CR>")
+
+vim.keymap.set("n", "<C-t>", function()
+	require("terminals").shell()
+end, { desc = "Open project floating terminal" })
+vim.keymap.set("n", "<leader>ai", function()
+	require("terminals").ai()
+end, { desc = "Open project pi terminal" })
+vim.keymap.set("x", "<leader>ai", function()
+	require("terminals").send_selection()
+end, { desc = "Send selected lines with file/range to pi" })

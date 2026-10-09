@@ -34,6 +34,7 @@ require("conform").setup({
 })
 
 require("fzf-lua").setup({})
+require("terminals").setup()
 
 require("oil").setup({
 	default_file_explorer = true,
