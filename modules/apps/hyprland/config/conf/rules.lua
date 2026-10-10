@@ -1,3 +1,6 @@
+hl.window_rule({ name = "float-class-marker", match = { class = "(?i).*float.*" }, float = true })
+hl.window_rule({ name = "float-title-marker", match = { title = "(?i).*float.*" }, float = true })
+
 local floatClasses = {
 	"com.boondax.dial",
 	"com.jfosburgh.odincraft",

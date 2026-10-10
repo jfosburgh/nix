@@ -74,6 +74,7 @@ end
 
 function M.setup()
 	require("toggleterm").setup({
+		shade_terminals = false,
 		start_in_insert = true,
 		persist_mode = false,
 		persist_size = false,
@@ -87,6 +88,33 @@ function M.setup()
 				return math.floor(vim.o.lines * 0.8)
 			end,
 		},
+	})
+	vim.api.nvim_create_autocmd("BufDelete", {
+		group = vim.api.nvim_create_augroup("ProjectTerminalBuffers", { clear = true }),
+		desc = "Keep an editing buffer when deleting the last file beside a terminal",
+		callback = function(event)
+			if vim.bo[event.buf].buftype == "terminal" then
+				return
+			end
+			local has_terminal = false
+			for _, project in pairs(sessions) do
+				for _, term in pairs(project) do
+					if term:is_open() then
+						has_terminal = true
+					end
+				end
+			end
+			if not has_terminal then
+				return
+			end
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if buf ~= event.buf and vim.bo[buf].buflisted and vim.bo[buf].buftype ~= "terminal" then
+					return
+				end
+			end
+			-- Otherwise :bd can select the unlisted pi buffer as its replacement.
+			vim.api.nvim_create_buf(true, false)
+		end,
 	})
 end
 
