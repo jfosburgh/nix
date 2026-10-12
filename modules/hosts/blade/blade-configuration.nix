@@ -15,7 +15,7 @@
     services.openssh = {
       enable = true;
       settings = {
-        PasswordAuthentication = false;
+        PasswordAuthentication = true;
         KbdInteractiveAuthentication = false;
         PermitRootLogin = "no";
       };
@@ -33,18 +33,9 @@
     zramSwap.enable = true;
     systemd.oomd.enable = true;
 
-    # Coordination server for the headscale/tailscale network the rest of
-    # the fleet will join. DERP left on headscale's default (Tailscale's
-    # public DERP map) rather than self-hosting relay, since that needs
-    # direct UDP reachability this box doesn't have yet.
-    #
-    # headscale.threegoldenhairs.me resolves through the existing
-    # Namecheap -> Cloudflare -> nginx-on-homeassistant chain; that nginx
-    # needs a reverse-proxy entry pointing at blade's LAN IP on port 8080
-    # once blade has one. TLS is terminated there, not on blade.
     services.headscale = {
       enable = true;
-      address = "0.0.0.0";
+      address = "127.0.0.1";
       port = 8080;
       settings = {
         server_url = "https://headscale.threegoldenhairs.me";
@@ -55,7 +46,69 @@
       };
     };
 
-    networking.firewall.allowedTCPPorts = [8080];
+    services.vaultwarden = {
+      enable = true;
+      dbBackend = "sqlite";
+      backupDir = "/var/backup/vaultwarden";
+      config = {
+        DOMAIN = "https://bitwarden.threegoldenhairs.me";
+        ROCKET_ADDRESS = "127.0.0.1";
+        ROCKET_PORT = 8222;
+        SIGNUPS_ALLOWED = false;
+      };
+    };
+
+    security.acme = {
+      acceptTerms = true;
+      defaults.email = "jwfosburgh@gmail.com";
+    };
+
+    services.nginx = {
+      enable = true;
+      recommendedTlsSettings = true;
+      recommendedProxySettings = true;
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+
+      virtualHosts = {
+        "homeassistant.threegoldenhairs.me" = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            proxyPass = "http://100.64.0.4:8123";
+            proxyWebsockets = true;
+          };
+        };
+
+        "bitwarden.threegoldenhairs.me" = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:8222";
+            proxyWebsockets = true;
+            extraConfig = ''
+              client_max_body_size 128m;
+            '';
+          };
+        };
+
+        "headscale.threegoldenhairs.me" = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:8080";
+            proxyWebsockets = true;
+            extraConfig = ''
+              proxy_buffering off;
+              proxy_read_timeout 600s;
+              proxy_send_timeout 600s;
+            '';
+          };
+        };
+      };
+    };
+
+    networking.firewall.allowedTCPPorts = [80 443];
 
     environment.systemPackages = with pkgs; [
       git
