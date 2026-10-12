@@ -95,18 +95,23 @@
   mkProfile = {
     modules,
     system ? "x86_64-linux",
+    headless ? false,
   }:
     inputs.home-manager.lib.homeManagerConfiguration {
       pkgs = mkPkgs system;
       inherit modules;
-      extraSpecialArgs = {inherit dotfilesRoot;};
+      extraSpecialArgs = {inherit dotfilesRoot headless;};
     };
 in {
   flake.homeConfigurations = {
-    "james@headless" = mkProfile {modules = common;};
+    "james@headless" = mkProfile {
+      modules = common;
+      headless = true;
+    };
     "james@pinas" = mkProfile {
       modules = common;
       system = "aarch64-linux";
+      headless = true;
     };
     "james@laptop" = mkProfile {modules = common ++ desktopApps;};
     "james@desktop" = mkProfile {modules = common ++ desktopApps ++ desktopOnly;};
