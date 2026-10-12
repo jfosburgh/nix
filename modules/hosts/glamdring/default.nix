@@ -12,6 +12,7 @@
       glamdring-hardware
       nvidia-1080ti
       james
+      tailscale
       steam
     ];
   };

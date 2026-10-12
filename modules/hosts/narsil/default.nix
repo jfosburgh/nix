@@ -12,6 +12,7 @@
       narsil-hardware
       amd-gpu
       james
+      tailscale
       nix-ld
       steam
       ollama

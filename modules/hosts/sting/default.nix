@@ -12,6 +12,7 @@
       sting-hardware
       amd-gpu
       james
+      tailscale
       nix-ld
       agents
     ];
