@@ -41,8 +41,17 @@ vpn() {
     off)
       sudo tailscale set --exit-node=
       ;;
+    toggle)
+      local prefs
+      prefs="$(sudo tailscale debug prefs)" || return
+      if printf '%s\n' "$prefs" | jq -e '(.ExitNodeID // "") != "" or (.ExitNodeIP // "") != ""' >/dev/null; then
+        vpn off
+      else
+        vpn on
+      fi
+      ;;
     *)
-      echo "Usage: vpn on|off" >&2
+      echo "Usage: vpn on|off|toggle" >&2
       return 1
       ;;
   esac
