@@ -33,6 +33,11 @@
     zramSwap.enable = true;
     systemd.oomd.enable = true;
 
+    services.tailscale = {
+      useRoutingFeatures = "server";
+      extraSetFlags = ["--advertise-exit-node"];
+    };
+
     services.headscale = {
       enable = true;
       address = "127.0.0.1";

@@ -33,6 +33,21 @@ c2f() {
   wl-paste > "$1"
 }
 
+vpn() {
+  case "$1" in
+    on)
+      sudo tailscale set --exit-node=blade --exit-node-allow-lan-access
+      ;;
+    off)
+      sudo tailscale set --exit-node=
+      ;;
+    *)
+      echo "Usage: vpn on|off" >&2
+      return 1
+      ;;
+  esac
+}
+
 nrs() {
   sudo nixos-rebuild switch --flake "/home/james/nix#$(hostname)"
 }
