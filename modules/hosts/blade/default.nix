@@ -11,6 +11,7 @@
       nix
       james
       tailscale
+      immich
       blade-configuration
       blade-hardware
     ];
