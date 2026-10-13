@@ -11,6 +11,7 @@
       nix
       james
       tailscale
+      audiobookshelf
       immich
       blade-configuration
       blade-hardware
