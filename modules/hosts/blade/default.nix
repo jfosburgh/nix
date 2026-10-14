@@ -12,6 +12,9 @@
       james
       tailscale
       audiobookshelf
+      bookorbit
+      jellyfin
+      nextcloud
       immich
       blade-configuration
       blade-hardware
