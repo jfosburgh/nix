@@ -16,6 +16,7 @@
       jellyfin
       nextcloud
       immich
+      dashboard
       blade-configuration
       blade-hardware
     ];

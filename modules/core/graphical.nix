@@ -18,6 +18,7 @@
         bluetooth
         kanata
         fonts
+        localsend
       ]
       ++ [inputs.noctalia-greeter.nixosModules.default];
 
