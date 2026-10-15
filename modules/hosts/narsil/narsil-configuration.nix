@@ -10,6 +10,11 @@
 
     networking.hostName = "narsil";
 
+    environment.systemPackages = with pkgs; [
+      prusa-slicer
+      freecad
+    ];
+
     boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
     # Autologin to Hyprland for james; work picks GNOME manually from the
