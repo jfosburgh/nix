@@ -55,6 +55,7 @@
       localsend
       beancount
       udiskie
+      koreader
     ])
     ++ [
       ({...}: {
