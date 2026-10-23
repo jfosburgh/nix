@@ -23,40 +23,44 @@
     zramSwap.enable = true;
     systemd.oomd.enable = true;
 
-    fileSystems."/data" = {
-      device = "/dev/data-vg/data-lv";
-      fsType = "ext4";
-      options = ["defaults" "nofail"];
-    };
-
-    services.samba = {
+    boot.swraid = {
       enable = true;
-      nmbd.enable = false;
-      openFirewall = true;
-      settings = {
-        global = {
-          "server string" = "pinas";
-          "server role" = "standalone server";
-        };
-        backups = {
-          path = "/data/backups";
-          browseable = "yes";
-          "read only" = "no";
-          "guest ok" = "no";
-          "valid users" = "james";
-          "create mask" = "0664";
-          "directory mask" = "0775";
-        };
-      };
+      mdadmConf = ''
+        ARRAY /dev/md/pinas-backup metadata=1.2 UUID=6cb48734:a83974e0:7525ec7e:07af97ca
+        PROGRAM ${pkgs.writeShellScript "pinas-raid-notify" ''
+          exec ${pkgs.util-linux}/bin/logger -t mdadm -- "$@"
+        ''}
+      '';
     };
 
-    systemd.tmpfiles.rules = ["d /data/backups 0775 james users -"];
+    fileSystems."/data" = {
+      device = "/dev/disk/by-uuid/0e549dd2-041c-42d1-b760-d42f1bb1d2e8";
+      fsType = "ext4";
+      # Keep remote administration available if the backup array cannot mount.
+      # Backup services must separately require and verify the real /data mount.
+      options = ["defaults" "nofail" "x-systemd.device-timeout=60s"];
+    };
+
+    # No writable file share on the dedicated backup target.
+    services.samba.enable = false;
+
+    services.smartd = {
+      enable = true;
+      autodetect = false;
+      # Monitor health only: do not schedule self-tests during initial RAID sync.
+      devices = map (serial: {
+        device = "/dev/disk/by-id/ata-ST6000VN001-2BB186_${serial}";
+        options = "-a -n standby,q";
+      }) ["ZR10H976" "ZR13TWBJ"];
+    };
 
     environment.systemPackages = with pkgs; [
       git
       vim
       rsync
       restic
+      mdadm
+      smartmontools
     ];
 
     nix.settings.trusted-users = ["root" "james"];
