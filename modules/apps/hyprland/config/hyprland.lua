@@ -12,6 +12,7 @@ require("./conf/input.lua")
 require("./conf/looknfeel.lua")
 require("./conf/monitors.lua")
 require("./conf/rules.lua")
+require("./conf/pi-panel.lua")
 
 -- Noctalia renders the ignored noctalia.lua, not this tracked config.
 -- On a fresh install the theme may not have been generated yet.

@@ -1,10 +1,13 @@
 -- Streaming output must not share a held push-to-talk shortcut: synthetic
 -- typing can disrupt Hyprland's release tracking. Tap, release, then speak.
-hl.bind("CTRL + ALT + SPACE", hl.dsp.exec_cmd("voxtype record toggle"), {
-    description = "Toggle local live dictation",
+hl.bind("CTRL + ALT + SPACE", hl.dsp.exec_cmd("voxtype-dictate cursor"), {
+    description = "Toggle local live dictation into the active cursor",
+})
+hl.bind("CTRL + ALT + SHIFT + SPACE", hl.dsp.exec_cmd("voxtype-dictate pi"), {
+    description = "Toggle local live dictation into the persistent Pi agent",
 })
 hl.bind("CTRL + ALT + Escape", hl.dsp.exec_cmd("voxtype record cancel"), {
-    description = "Cancel local dictation (already typed text remains)",
+    description = "Cancel local dictation (rewind this recording's streamed text)",
 })
 
 -- 0.56.2 has no config.unload event. Cancel on reload/shutdown so an old

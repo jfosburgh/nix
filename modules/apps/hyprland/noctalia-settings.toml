@@ -110,7 +110,7 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@eDP-1" ]
 [nightlight]
 enabled = true
 
-# Dictation has its own persistent capture indicator; avoid the additional
+# Dictation has its own waveform OSD; avoid the additional
 # brief Noctalia capture-start/stop OSD (this setting covers all capture kinds).
 [osd.kinds]
 privacy = false
@@ -119,20 +119,10 @@ privacy = false
 keyboard_layout = false
 
 [notification]
-filter_order = [ "dictation", "voxtype" ]
+filter_order = [ "voxtype" ]
 
-[notification.filter.dictation]
-enabled = true
-match = "Dictation"
-show_toast = true
-save_history = false
-play_sound = false
-bypass_dnd = true
-allow_permanent = true
-override_duration = 0
-
-# Keep any built-in status/clipboard fallback notices quiet as well. The
-# separate Dictation sender above is the only visible recording indicator.
+# Recording feedback comes from the waveform OSD, not notifications.
+# Keep built-in status/clipboard fallback notices quiet as well.
 [notification.filter.voxtype]
 enabled = true
 match = "Voxtype"

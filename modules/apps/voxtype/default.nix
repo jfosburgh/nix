@@ -23,11 +23,55 @@
         };
       })
       modelFiles);
-    package = pkgs.voxtype-onnx;
-    indicator = pkgs.writeShellApplication {
-      name = "voxtype-recording-indicator";
-      runtimeInputs = [package pkgs.jq pkgs.libnotify pkgs.dbus pkgs.coreutils];
-      text = builtins.readFile ./recording-indicator.sh;
+    routedWtype = pkgs.writeShellApplication {
+      name = "wtype";
+      runtimeInputs = [pkgs.tmux pkgs.util-linux pkgs.coreutils];
+      text =
+        ''
+          export VOXTYPE_REAL_WTYPE=${lib.getExe pkgs.wtype}
+        ''
+        + builtins.readFile ./route-wtype.sh;
+    };
+    routedNotify = pkgs.writeShellApplication {
+      name = "notify-send";
+      runtimeInputs = [pkgs.coreutils];
+      text =
+        ''
+          export VOXTYPE_REAL_NOTIFY_SEND=${lib.getExe' pkgs.libnotify "notify-send"}
+        ''
+        + builtins.readFile ./route-notify-send.sh;
+    };
+    quickshellFiles = pkgs.runCommand "voxtype-quickshell" {} ''
+      cp -r ${pkgs.voxtype-onnx.src}/quickshell "$out"
+      # Streaming is microphone dictation too, not speaker/audio playback.
+      chmod u+w "$out/OsdSurface.qml"
+      substituteInPlace "$out/OsdSurface.qml" \
+        --replace-fail '"󰜟"' '"󰍬"'
+    '';
+    # Rewrap the cached ONNX executable instead of recompiling it. All live
+    # output (including partial-text corrections) passes through the router.
+    package = pkgs.symlinkJoin {
+      name = "voxtype-routed";
+      paths = [pkgs.voxtype-onnx];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        rm "$out/bin/voxtype"
+        makeWrapper ${pkgs.voxtype-onnx}/bin/.voxtype-wrapped "$out/bin/voxtype" \
+          --set ORT_DYLIB_PATH ${lib.getLib pkgs.onnxruntime}/lib/libonnxruntime.so \
+          --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.onnxruntime}/lib \
+          --prefix PATH : ${lib.makeBinPath [routedWtype routedNotify pkgs.wl-clipboard pkgs.which pkgs.voxtype-onnx pkgs.quickshell]}
+      '';
+      meta.mainProgram = "voxtype";
+    };
+    dictationTarget = pkgs.writeShellApplication {
+      name = "voxtype-dictate";
+      runtimeInputs = [package pkgs.jq pkgs.util-linux pkgs.coreutils];
+      text = builtins.readFile ./dictation-target.sh;
+    };
+    submitPi = pkgs.writeShellApplication {
+      name = "voxtype-submit-pi";
+      runtimeInputs = [pkgs.voxtype-onnx pkgs.tmux pkgs.jq pkgs.coreutils];
+      text = builtins.readFile ./submit-pi.sh;
     };
     settings = (pkgs.formats.toml {}).generate "voxtype-config.toml" {
       engine = "parakeet";
@@ -54,13 +98,34 @@
         streaming_left_context_secs = 5.6;
         streaming_right_context_secs = 0.56;
       };
+      osd = {
+        enabled = true;
+        frontend = "quickshell";
+        palette = "fallback";
+        layout = "minimal";
+        position = "top-center";
+        top_margin = 0.08;
+        frame = {
+          border = "none";
+          glow = false;
+          halo = false;
+        };
+        visual.layers = [
+          {
+            type = "waveform";
+            source = "peak";
+            color = "accent";
+          }
+        ];
+      };
       output = {
         mode = "type";
         driver_order = ["wtype" "clipboard"];
         fallback_to_clipboard = true;
-        auto_submit = false;
+        auto_submit = false; # Never send Enter to the active application.
+        post_output_command = lib.getExe submitPi;
         notification = {
-          # The state-following indicator supplies a single persistent toast.
+          # The state-driven waveform OSD replaces recording notifications.
           on_recording_start = false;
           on_recording_stop = false;
           on_transcription = false;
@@ -68,7 +133,7 @@
       };
     };
   in {
-    environment.systemPackages = [package];
+    environment.systemPackages = [package dictationTarget];
     environment.etc."voxtype/config.toml".source = settings;
     environment.etc."voxtype/hyprland.lua".source = ./hyprland.lua;
 
@@ -79,27 +144,17 @@
       wantedBy = ["graphical-session.target"];
       partOf = ["graphical-session.target"];
       after = ["graphical-session.target"];
-      wants = ["voxtype-indicator.service"];
       unitConfig.ConditionEnvironment = "HYPRLAND_INSTANCE_SIGNATURE";
+      environment = {
+        # The supervised OSD child doesn't inherit the daemon's --config flag.
+        VOXTYPE_CONFIG = settings;
+        VOXTYPE_OSD_QML_PATH = quickshellFiles;
+      };
       serviceConfig = {
+        ExecStartPre = "${lib.getExe' pkgs.coreutils "rm"} -f %t/voxtype-pi-target %t/voxtype-pi-submit %t/voxtype-pi-chars %t/voxtype-pi-failed";
         ExecStart = "${lib.getExe package} --config ${settings} daemon";
         Restart = "on-failure";
         RestartSec = 5;
-      };
-    };
-
-    systemd.user.services.voxtype-indicator = {
-      description = "Persistent microphone recording indicator for dictation";
-      after = ["voxtype.service"];
-      bindsTo = ["voxtype.service"];
-      partOf = ["voxtype.service"];
-      unitConfig.ConditionEnvironment = "HYPRLAND_INSTANCE_SIGNATURE";
-      serviceConfig = {
-        ExecStart = lib.getExe indicator;
-        ExecStopPost = "${lib.getExe indicator} --close";
-        RuntimeDirectory = "voxtype-indicator";
-        Restart = "on-failure";
-        RestartSec = 1;
       };
     };
   };

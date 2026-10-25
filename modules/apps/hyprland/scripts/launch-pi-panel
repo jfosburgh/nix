@@ -1,0 +1,86 @@
+if [[ "${1:-}" == --attach || "${1:-}" == --ensure ]]; then
+  # A dedicated tmux server keeps Pi alive even if its Ghostty window closes.
+  # Separate session storage prevents --continue from opening a project chat.
+  state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/pi-panel"
+  mkdir -p "$state_dir/sessions"
+  cd "$HOME"
+  unset TMUX
+  tmux_env=()
+  # Refresh helpers and the notification bus even if a tmux server exists.
+  for variable in PATH DBUS_SESSION_BUS_ADDRESS LLAMA_BASE_URL SEARXNG_BASE_URL; do
+    if [[ -v "$variable" ]]; then
+      tmux_env+=(-e "$variable=${!variable}")
+    fi
+  done
+  if [[ "$1" == --ensure ]]; then
+    tmux -L pi-panel has-session -t agent 2>/dev/null && exit 0
+    tmux -L pi-panel -f "$PI_PANEL_TMUX_CONFIG" \
+      new-session -d -s agent -c "$HOME" "${tmux_env[@]}" \
+      pi --continue --session-dir "$state_dir/sessions" --name 'Desktop agent' \
+      --extension "$PI_PANEL_NOTIFY_EXTENSION" \
+      || tmux -L pi-panel has-session -t agent
+    exit 0
+  fi
+  exec tmux -L pi-panel -f "$PI_PANEL_TMUX_CONFIG" \
+    new-session -A -s agent -c "$HOME" "${tmux_env[@]}" \
+    pi --continue --session-dir "$state_dir/sessions" --name 'Desktop agent' \
+    --extension "$PI_PANEL_NOTIFY_EXTENSION"
+fi
+
+# Coalesce repeated presses while Ghostty is starting; never spawn duplicates.
+exec 9>"$XDG_RUNTIME_DIR/pi-panel.lock"
+flock -n 9 || exit 0
+
+find_panel() {
+  hyprctl -j clients | jq -r 'first(.[] | select(.class == "dev.pi.DesktopAgent") | .address) // empty'
+}
+
+address=$(find_panel)
+existing=false
+if [[ -n "$address" ]]; then
+  existing=true
+else
+  (
+    # Don't leave the launch lock held for the lifetime of the terminal.
+    exec 9>&-
+    exec uwsm app -- ghostty --gtk-single-instance=false \
+      --class=dev.pi.DesktopAgent --title='Pi Agent' \
+      --window-decoration=none --working-directory="$HOME" \
+      -e "$0" --attach
+  ) &
+  for ((i = 0; i < 100; i++)); do
+    address=$(find_panel)
+    [[ -n "$address" ]] && break
+    sleep 0.05
+  done
+  if [[ -z "$address" ]]; then
+    echo 'Pi panel: terminal did not appear within five seconds' >&2
+    exit 1
+  fi
+fi
+
+monitor=$(hyprctl -j monitors | jq -ce 'first(.[] | select(.focused))')
+visible=$(jq -r '.specialWorkspace.name == "special:pi-agent"' <<<"$monitor")
+if [[ "$existing" == true && "$visible" == true ]]; then
+  hyprctl eval 'hl.dispatch(hl.dsp.workspace.toggle_special("pi-agent"))' >/dev/null
+  exit 0
+fi
+
+# Native special workspaces can follow the focused monitor without recreating
+# their windows. Recalculate logical geometry on every show (HiDPI/rotation too).
+if [[ "$visible" != true ]]; then
+  hyprctl eval 'hl.dispatch(hl.dsp.workspace.toggle_special("pi-agent"))' >/dev/null
+fi
+read -r width height x y < <(jq -r '
+  (if .transform % 2 == 1 then .height else .width end / .scale | floor) as $mw |
+  (if .transform % 2 == 1 then .width else .height end / .scale | floor) as $mh |
+  (.reserved // [0, 0, 0, 0]) as $r |
+  (($mw - $r[0] - $r[2]) / 3 | floor) as $w |
+  [$w, ($mh - $r[1] - $r[3] - 24),
+   (.x + $mw - $r[2] - $w - 12), (.y + $r[1] + 12)] | @tsv
+' <<<"$monitor")
+hyprctl eval "
+  hl.dispatch(hl.dsp.window.resize({window = 'address:$address', x = $width, y = $height, relative = false}))
+  hl.dispatch(hl.dsp.window.move({window = 'address:$address', x = $x, y = $y, relative = false}))
+  hl.dispatch(hl.dsp.focus({window = 'address:$address'}))
+" >/dev/null
