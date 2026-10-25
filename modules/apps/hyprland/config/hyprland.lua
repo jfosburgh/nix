@@ -1,5 +1,12 @@
 require("./conf/autostart.lua")
 require("./conf/bindings.lua")
+
+-- Host-local optional dictation integration; absent on hosts without Voxtype.
+local voxtype = io.open("/etc/voxtype/hyprland.lua", "r")
+if voxtype then
+    voxtype:close()
+    dofile("/etc/voxtype/hyprland.lua")
+end
 require("./conf/envs.lua")
 require("./conf/input.lua")
 require("./conf/looknfeel.lua")
