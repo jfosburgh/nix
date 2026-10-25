@@ -115,6 +115,9 @@
 
     networking.firewall.allowedTCPPorts = [80 443];
 
+    # Install manual preparation/upload units only; no backup timers yet.
+    services.bladeBackupPreparation.enable = true;
+
     environment.systemPackages = with pkgs; [
       git
       vim
