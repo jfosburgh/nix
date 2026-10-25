@@ -15,6 +15,7 @@
       tailscale
       nix-ld
       agents
+      voxtype
     ];
   };
 }

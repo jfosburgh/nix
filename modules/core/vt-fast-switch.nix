@@ -68,6 +68,33 @@
     # same as greetd-vt2's below.
     systemd.services.greetd.serviceConfig.Restart = lib.mkForce "no";
 
+    # switch-to-configuration starts graphical.target again, which pulls in
+    # inactive Wants even with restartIfChanged=false. A dormant VT1 greeter
+    # then steals focus from the still-running desktop on VT2. Start it through
+    # a persistent oneshot instead: boot starts the greeter, rebuilds don't.
+    systemd.services.greetd.wantedBy = lib.mkForce [];
+    systemd.services.greetd-boot = {
+      description = "Start the primary greeter once at boot";
+      wantedBy = ["graphical.target"];
+      after = ["systemd-user-sessions.service"];
+      restartIfChanged = false;
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      path = [pkgs.systemd pkgs.gawk];
+      script = ''
+        # Also make the first switch introducing this unit safe: don't launch
+        # a greeter over an existing graphical session on either VT.
+        for session in $(loginctl list-sessions --no-legend | awk '$4 == "seat0" && $6 == "user" {print $1}'); do
+          case "$(loginctl show-session "$session" -p Type --value)" in
+            wayland|x11) exit 0 ;;
+          esac
+        done
+        systemctl --no-block start greetd.service
+      '';
+    };
+
     # Mirrors NixOS's own greetd service (nixos/modules/services/
     # display-managers/greetd.nix) but for tty2 instead of the hardcoded
     # tty1, and without initial_session (autologin, if any, is VT1-only).
