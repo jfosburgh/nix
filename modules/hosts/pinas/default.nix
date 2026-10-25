@@ -11,6 +11,7 @@
       james
       tailscale
       pinas-configuration
+      pinas-backups
       pinas-hardware
     ];
   };

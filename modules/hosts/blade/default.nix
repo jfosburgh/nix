@@ -18,6 +18,7 @@
       immich
       dashboard
       blade-configuration
+      blade-backups
       blade-hardware
     ];
   };
