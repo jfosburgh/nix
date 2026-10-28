@@ -3,6 +3,8 @@ case "$target" in cursor|pi) ;; *) echo 'Expected cursor or pi' >&2; exit 2 ;; e
 
 exec 9>"$XDG_RUNTIME_DIR/voxtype-dictation.lock"
 flock -n 9 || exit 0
+# Explicitly unlock on exit even if a child accidentally inherits this fd.
+trap 'flock -u 9' EXIT
 state=$(voxtype status --format json | jq -er '.class')
 case "$state" in
   recording|streaming)
@@ -21,7 +23,8 @@ case "$state" in
       "$XDG_RUNTIME_DIR/voxtype-pi-chars" "$XDG_RUNTIME_DIR/voxtype-pi-failed"
     if [[ "$target" == pi ]]; then
       # Start the dedicated agent if needed, without showing/focusing its window.
-      launch-pi-panel --ensure
+      # The persistent tmux server must not inherit the shortcut lock.
+      launch-pi-panel --ensure 9>&-
       : >"$XDG_RUNTIME_DIR/voxtype-pi-target"
     else
       rm -f "$XDG_RUNTIME_DIR/voxtype-pi-target"

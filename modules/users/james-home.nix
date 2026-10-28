@@ -114,8 +114,8 @@ in {
       system = "aarch64-linux";
       headless = true;
     };
-    "james@laptop" = mkProfile {modules = common ++ desktopApps;};
-    "james@desktop" = mkProfile {modules = common ++ desktopApps ++ desktopOnly;};
+    "james@laptop" = mkProfile {modules = common ++ desktopApps ++ [self.homeModules.learnharness];};
+    "james@desktop" = mkProfile {modules = common ++ desktopApps ++ desktopOnly ++ [self.homeModules.learnharness];};
     "james@steammachine" = mkProfile {modules = common ++ desktopApps ++ (with self.homeModules; [steam]);};
   };
 }
