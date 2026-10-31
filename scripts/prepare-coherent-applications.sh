@@ -30,7 +30,7 @@ recover() {
   [[ -s $restarts ]] || return 0
   while IFS= read -r entry; do
     case "$entry" in
-      container:immich_server|container:bookorbit-app)
+      container:immich_server|container:bookorbit-app|container:norish-app|container:norish-valkey)
         if ! resume_container "${entry#container:}"; then failed=1; continue; fi
         ;;
       unit:phpfpm-nextcloud.service|unit:nextcloud-cron.timer)
@@ -100,16 +100,18 @@ stop_unit() {
 }
 
 # Fail before downtime if first-generation staging would exhaust the data disk.
-needed=$(du -s -B1 /data/immich/media /data/bookorbit /data/nextcloud | awk '{s+=$1} END {printf "%.0f",s}')
+needed=$(du -s -B1 /data/immich/media /data/bookorbit /data/norish /data/nextcloud | awk '{s+=$1} END {printf "%.0f",s}')
 available=$(df -B1 --output=avail /data | tail -n 1 | tr -d ' ')
 (( available > needed + 10737418240 )) || { echo 'Insufficient staging space (need source size plus 10 GiB).' >&2; exit 1; }
 
-for spec in 'immich:immich_server:immich_postgres:postgres:immich' 'bookorbit:bookorbit-app:bookorbit-db:bookorbit:bookorbit'; do
+for spec in 'immich:immich_server:immich_postgres:postgres:immich' 'bookorbit:bookorbit-app:bookorbit-db:bookorbit:bookorbit' 'norish:norish-app:norish-db:norish:norish'; do
   IFS=: read -r app writer database_container user database <<< "$spec"
   install -d -m 0700 "$work/$app"
   echo "Stopping $app writers for database and file capture"
   downtime_start=$SECONDS
   stop_container "$writer"
+  # Persist and quiesce Norish's job queue too; recover starts it before the app.
+  if [[ $app == norish ]]; then stop_container norish-valkey; fi
   docker exec -u postgres "$database_container" pg_dump -U "$user" -d "$database" --format=custom > "$work/$app/database.dump"
   docker exec -u postgres "$database_container" pg_dumpall -U "$user" --globals-only > "$work/$app/globals.sql"
   docker exec -u postgres "$database_container" pg_dump --version > "$work/$app/version.txt"
@@ -121,8 +123,8 @@ for spec in 'immich:immich_server:immich_postgres:postgres:immich' 'bookorbit:bo
     install -m 0600 /var/lib/immich/environment "$work/$app/environment"
   else
     links=()
-    [[ -z $previous ]] || links=("--link-dest=$previous/bookorbit/files")
-    rsync -a --numeric-ids "${compare[@]}" "${links[@]}" --exclude=/postgres/ /data/bookorbit/ "$work/$app/files/"
+    [[ -z $previous || ! -d $previous/$app/files ]] || links=("--link-dest=$previous/$app/files")
+    rsync -a --numeric-ids "${compare[@]}" "${links[@]}" --exclude=/postgres/ "/data/$app/" "$work/$app/files/"
   fi
   recover
   echo "Resumed previously running $app after $((SECONDS - downtime_start))s capture/startup window"
@@ -163,18 +165,18 @@ pg_restore --list "$work/nextcloud/database.dump" >/dev/null
 # explicit generated /etc files; retain repository symlinks as symlinks.
 install -d -m 0700 "$work/configuration"
 rsync -a --exclude='result*' /home/james/nix/ "$work/configuration/nix/"
-for path in /etc/immich/compose.yaml /etc/bookorbit/compose.yaml /etc/headscale/config.yaml; do
+for path in /etc/immich/compose.yaml /etc/bookorbit/compose.yaml /etc/norish/compose.yaml /etc/headscale/config.yaml; do
   destination="$work/configuration$path"
   install -d -m 0700 "${destination%/*}"
   install -m 0600 "$path" "$destination"
 done
-for app in immich bookorbit nextcloud; do
+for app in immich bookorbit norish nextcloud; do
   [[ -s $work/$app/database.dump && -s $work/$app/globals.sql ]] || exit 1
 done
 printf 'Completed UTC: %s\nEach application captured separately; writers stopped for database and files.\nFull source checksum comparison: %s\nUnchanged files may share hard links with older generations; NEVER edit staging files in place.\n' \
   "$(date -u --iso-8601=seconds)" "${BLADE_BACKUP_FULL_COMPARE:-0}" > "$work/README.txt"
 echo 'Computing staged SHA-256 manifest; application writers have already resumed.'
-(cd "$work" && find immich bookorbit nextcloud configuration README.txt -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+(cd "$work" && find immich bookorbit norish nextcloud configuration README.txt -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 generation="$(date -u +%Y%m%dT%H%M%SZ)-${work##*.}"
 mv -- "$work" "$base/$generation"
 work=''

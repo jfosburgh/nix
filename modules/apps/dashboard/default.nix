@@ -9,6 +9,7 @@
       { name = "Jellyfin"; subdomain = "jellyfin"; }
       { name = "Audiobookshelf"; subdomain = "audiobooks"; }
       { name = "BookOrbit"; subdomain = "books"; }
+      { name = "Norish"; subdomain = "recipes"; }
     ];
   in {
     services.glance = {

@@ -13,6 +13,7 @@
       tailscale
       audiobookshelf
       bookorbit
+      norish
       jellyfin
       nextcloud
       immich
