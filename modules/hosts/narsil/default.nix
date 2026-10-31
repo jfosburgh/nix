@@ -9,6 +9,7 @@
       graphical
       hyprland
       narsil-configuration
+      narsil-strata-mode
       narsil-hardware
       amd-gpu
       james

@@ -1,5 +1,51 @@
 {
   "providers": {
+    "strata": {
+      "baseUrl": "http://127.0.0.1:8080/v1",
+      "api": "openai-completions",
+      "apiKey": "strata-local",
+      "models": [
+        {
+          "id": "strata-coder",
+          "name": "Strata Coder (local, 64K)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 65536,
+          "maxTokens": 16384,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "thinkingLevelMap": {
+            "off": "none",
+            "minimal": "low",
+            "low": "low",
+            "medium": "medium",
+            "high": "high"
+          }
+        }
+      ]
+    },
+    "strata-server": {
+      "baseUrl": "https://strata.threegoldenhairs.me/v1",
+      "api": "openai-completions",
+      "apiKey": "strata-private-network",
+      "models": [
+        {
+          "id": "strata-coder",
+          "name": "Strata Coder (Narsil server, 128K)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 131072,
+          "maxTokens": 16384,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "thinkingLevelMap": {
+            "off": "none",
+            "minimal": "low",
+            "low": "low",
+            "medium": "medium",
+            "high": "high"
+          }
+        }
+      ]
+    },
     "ollama": {
       "baseUrl": "http://127.0.0.1:11434/v1",
       "api": "openai-completions",
