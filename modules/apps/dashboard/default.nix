@@ -10,6 +10,7 @@
       { name = "Audiobookshelf"; subdomain = "audiobooks"; }
       { name = "BookOrbit"; subdomain = "books"; }
       { name = "Strata Coder"; subdomain = "strata"; }
+      { name = "Norish"; subdomain = "recipes"; }
     ];
   in {
     services.glance = {
