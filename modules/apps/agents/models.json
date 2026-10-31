@@ -30,10 +30,10 @@
       "models": [
         {
           "id": "strata-coder",
-          "name": "Strata Coder (Narsil server, 128K)",
+          "name": "Strata Coder (Narsil server, 256K)",
           "reasoning": true,
           "input": ["text"],
-          "contextWindow": 131072,
+          "contextWindow": 262144,
           "maxTokens": 16384,
           "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
           "thinkingLevelMap": {
