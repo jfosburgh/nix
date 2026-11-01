@@ -7,7 +7,7 @@
       "models": [
         {
           "id": "strata-coder",
-          "name": "Strata Coder (local, 64K)",
+          "name": "Strata Localhost",
           "reasoning": true,
           "input": ["text"],
           "contextWindow": 65536,
@@ -30,7 +30,7 @@
       "models": [
         {
           "id": "strata-coder",
-          "name": "Strata Coder (Narsil server, 256K)",
+          "name": "Strata Server",
           "reasoning": true,
           "input": ["text"],
           "contextWindow": 262144,
