@@ -24,7 +24,7 @@ trap 'exit 143' TERM
 
 # Fail closed if an expected database/container is unavailable. Do not start,
 # stop, or otherwise change application services here.
-for spec in 'immich:immich_postgres:postgres:immich' 'bookorbit:bookorbit-db:bookorbit:bookorbit'; do
+for spec in 'immich:immich_postgres:postgres:immich' 'bookorbit:bookorbit-db:bookorbit:bookorbit' 'norish:norish-db:norish:norish'; do
   IFS=: read -r app container user database <<< "$spec"
   echo "Preparing $app PostgreSQL dump"
   docker exec -u postgres "$container" pg_dump -U "$user" -d "$database" --format=custom > "$work/$app.dump"
@@ -40,7 +40,7 @@ runuser -u postgres -- pg_dumpall --globals-only > "$work/nextcloud-globals.sql"
 pg_restore --list "$work/nextcloud.dump" > /dev/null
 pg_dump --version > "$work/nextcloud-version.txt"
 
-for app in immich bookorbit nextcloud; do
+for app in immich bookorbit norish nextcloud; do
   [[ -s $work/$app.dump && -s $work/$app-globals.sql ]] || {
     echo "Missing/empty dump for $app" >&2
     exit 1

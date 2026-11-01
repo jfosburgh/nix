@@ -13,10 +13,12 @@
       tailscale
       audiobookshelf
       bookorbit
+      norish
       jellyfin
       nextcloud
       immich
       dashboard
+      strata-proxy
       blade-configuration
       blade-backups
       blade-hardware
