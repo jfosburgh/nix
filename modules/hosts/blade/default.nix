@@ -18,6 +18,7 @@
       nextcloud
       immich
       dashboard
+      budget-tracker
       strata-proxy
       blade-configuration
       blade-backups

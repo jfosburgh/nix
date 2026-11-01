@@ -18,6 +18,8 @@ hl.bind(key("V"), hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("ALT + V"), hl.dsp.exec_cmd(floatTerm .. " zsh -ic 'vpn toggle'"))
 hl.bind(key("F"), hl.dsp.window.fullscreen())
 hl.bind(key("B"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle control-center"))
+-- Shared budget lives on blade; available from every graphical host.
+hl.bind(key("ALT + B"), hl.dsp.exec_cmd(floatTerm .. " budget"))
 hl.bind(key("S"), hl.dsp.exec_cmd(noctaliaIpc .. "screenshot-region"))
 hl.bind(key("SHIFT + L"), hl.dsp.exec_cmd(noctaliaIpc .. "session lock"))
 hl.bind(key("SHIFT + P"), hl.dsp.exec_cmd(noctaliaIpc .. "panel-toggle session"))

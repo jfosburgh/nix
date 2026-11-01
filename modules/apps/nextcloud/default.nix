@@ -17,11 +17,10 @@
       maxUploadSize = "16G";
       configureRedis = true;
       database.createLocally = true;
-      config = {
-        dbtype = "pgsql";
-        adminuser = "james";
-        adminpassFile = "/data/nextcloud/.secrets/admin-password";
-      };
+      # On fresh installs, create the admin after setup with:
+      # nextcloud-occ user:add james && nextcloud-occ group:adduser admin james
+      # Existing accounts are preserved; adminuser/adminpassFile were removed in NixOS 26.11.
+      config.dbtype = "pgsql";
       phpOptions = {
         upload_tmp_dir = "/data/nextcloud/tmp";
         sys_temp_dir = "/data/nextcloud/tmp";
@@ -57,13 +56,6 @@
           install -d -o nextcloud -g nextcloud -m 0750 /data/nextcloud
           install -d -o nextcloud -g nextcloud -m 0700 /data/nextcloud/redis /data/nextcloud/tmp
           install -d -o postgres -g postgres -m 0700 /data/nextcloud-db /data/nextcloud-db/18
-          install -d -o root -g root -m 0700 /data/nextcloud/.secrets
-          if [ ! -e /data/nextcloud/.secrets/admin-password ]; then
-            umask 077
-            tmp=$(mktemp /data/nextcloud/.secrets/admin-password.XXXXXX)
-            ${pkgs.openssl}/bin/openssl rand -hex 24 > "$tmp"
-            mv "$tmp" /data/nextcloud/.secrets/admin-password
-          fi
         '';
       };
       postgresql = storageDependency;

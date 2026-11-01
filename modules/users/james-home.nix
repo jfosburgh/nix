@@ -40,6 +40,7 @@
       direnv
       yazi
       rbw
+      budget-tracker
     ]);
 
   desktopApps =
