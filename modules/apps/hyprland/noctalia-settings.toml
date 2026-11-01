@@ -1,4 +1,4 @@
-config_version = 15
+config_version = 16
 
 [bar.default]
 border_width = 2.0
@@ -65,7 +65,7 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@eDP-1" ]
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -92,7 +92,7 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@eDP-1" ]
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 6.0
         center_password_text = false
@@ -110,25 +110,19 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@eDP-1" ]
 [nightlight]
 enabled = true
 
-# Dictation has its own waveform OSD; avoid the additional
-# brief Noctalia capture-start/stop OSD (this setting covers all capture kinds).
-[osd.kinds]
-privacy = false
-# wtype creates/removes a virtual keyboard for streaming text, producing
-# layout events (English (US) / none) that otherwise flash this OSD repeatedly.
-keyboard_layout = false
-
 [notification]
 filter_order = [ "voxtype" ]
 
-# Recording feedback comes from the waveform OSD, not notifications.
-# Keep built-in status/clipboard fallback notices quiet as well.
-[notification.filter.voxtype]
-enabled = true
-match = "Voxtype"
-show_toast = false
-save_history = false
-play_sound = false
+    [notification.filter.voxtype]
+    enabled = true
+    match = "Voxtype"
+    play_sound = false
+    save_history = false
+    show_toast = false
+
+[osd.kinds]
+keyboard_layout = false
+privacy = false
 
 [shell]
 avatar_path = "/home/james/.config/backgrounds/mountain-forest.jpg"
@@ -233,6 +227,6 @@ hidden = [ "Blueman" ]
 show_label = false
 
 [widget.workspaces]
-empty_color = "outline"
+empty_color = "outline_variant"
 occupied_color = "on_surface"
 style = "minimal"

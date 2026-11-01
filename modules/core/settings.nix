@@ -1,7 +1,6 @@
 # TODO: figure out what of this is actually needed r.e. unfree
 {
   inputs,
-  self,
   ...
 }: {
   perSystem = {
@@ -22,7 +21,6 @@
     legacyPackages = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      overlays = [self.overlays.hyprland-glaze-fix];
     };
   };
 

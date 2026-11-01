@@ -1,30 +1,13 @@
 {
-  self,
   inputs,
   ...
 }: {
-  flake.overlays.hyprland-glaze-fix = final: prev: {
-    hyprland = prev.hyprland.override {
-      glaze = prev.glaze.overrideAttrs (_: {
-        version = "7.2.0";
-        src = prev.fetchFromGitHub {
-          owner = "stephenberry";
-          repo = "glaze";
-          tag = "v7.2.0";
-          hash = "sha256-f3NVRi3SXKo42hn0WCw7JsOK3EkdOVJIcuzhPorKjFY=";
-        };
-      });
-    };
-  };
-
   flake.nixosModules.hyprland = {
     pkgs,
     lib,
     config,
     ...
   }: {
-    nixpkgs.overlays = [self.overlays.hyprland-glaze-fix];
-
     programs.hyprland.enable = true;
     programs.hyprland.withUWSM = true;
 
