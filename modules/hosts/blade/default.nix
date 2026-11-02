@@ -14,6 +14,7 @@
       audiobookshelf
       bookorbit
       norish
+      norish-planner
       jellyfin
       nextcloud
       immich
