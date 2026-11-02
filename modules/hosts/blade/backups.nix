@@ -106,7 +106,7 @@
       };
       systemd.services.blade-prepare-application-state = {
         description = "Stage quiesced application state and validate SQLite databases";
-        after = ["audiobookshelf.service" "vaultwarden.service" "headscale.service" "jellyfin.service"];
+        after = ["audiobookshelf.service" "vaultwarden.service" "headscale.service" "jellyfin.service" "forgejo.service"];
         unitConfig.RequiresMountsFor = ["/data"];
         serviceConfig = {
           Type = "oneshot";

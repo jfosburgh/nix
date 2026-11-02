@@ -16,7 +16,7 @@ recover() {
   # Reverse stop order: application first, then its timer.
   while IFS= read -r unit; do
     case "$unit" in
-      audiobookshelf.service|vaultwarden.service|headscale.service|jellyfin.service|backup-vaultwarden.timer) ;;
+      audiobookshelf.service|vaultwarden.service|headscale.service|jellyfin.service|forgejo.service|backup-vaultwarden.timer) ;;
       *) echo "Unexpected recovery unit: $unit" >&2; failed=1; continue ;;
     esac
     if systemctl start "$unit"; then
@@ -73,7 +73,7 @@ script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 machine_capture=${BLADE_CAPTURE_MACHINE_RECOVERY:-$script_dir/capture-machine-recovery.py}
 python3 "$machine_capture" "$work/machine-recovery"
 
-for app in audiobookshelf vaultwarden headscale jellyfin; do
+for app in audiobookshelf vaultwarden headscale jellyfin forgejo; do
   echo "Staging $app state"
   case "$app" in
     audiobookshelf)
@@ -100,6 +100,12 @@ for app in audiobookshelf vaultwarden headscale jellyfin; do
       sources=(/var/lib/headscale/)
       excludes=()
       database=db.sqlite
+      ;;
+    forgejo)
+      # Keep repositories, LFS, attachments, secrets and SSH keys together.
+      sources=(/var/lib/forgejo/)
+      excludes=()
+      database=data/forgejo.db
       ;;
     jellyfin)
       sources=(/data/jellyfin/)
@@ -129,7 +135,7 @@ done
   printf '%s\n' 'Does not include bulk audiobook/movie content, general home files, ACME state, or PostgreSQL services.'
 } > "$work/README.txt"
 # Include all copied files, including any WALs and persistent identity keys.
-(cd "$work" && find audiobookshelf vaultwarden headscale jellyfin machine-recovery README.txt -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+(cd "$work" && find audiobookshelf vaultwarden headscale jellyfin forgejo machine-recovery README.txt -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 generation="$(date -u +%Y%m%dT%H%M%SZ)-${work##*.}"
 mv -- "$work" "$base/$generation"
 work=''
