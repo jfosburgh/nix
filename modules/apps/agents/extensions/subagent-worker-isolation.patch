@@ -1,0 +1,20 @@
+--- a/index.ts
++++ b/index.ts
+@@ -16,6 +16,7 @@
+ import * as fs from "node:fs";
+ import * as os from "node:os";
+ import * as path from "node:path";
++import { fileURLToPath } from "node:url";
+ import type { AgentToolResult, ThinkingLevel } from "@earendil-works/pi-agent-core";
+ import type { Message } from "@earendil-works/pi-ai";
+ import { StringEnum } from "@earendil-works/pi-ai";
+@@ -298,2 +299,8 @@
+-	const args: string[] = ["--mode", "json", "-p", "--no-session"];
++	// Select worker resources explicitly; tool allowlists do not disable extension hooks.
++	const args: string[] = [
++		"--mode", "json", "-p", "--no-session",
++		"--no-extensions", "--no-skills", "--no-prompt-templates",
++		"--extension", fileURLToPath(new URL("../roles/worker.ts", import.meta.url)),
++		"--skill", fileURLToPath(new URL("../node_modules/pi-lens/skills", import.meta.url)),
++	];
+ 	const inheritsDispatchConfig = !agent.model;

@@ -1,18 +1,34 @@
-{inputs, ...}: {
+{
+  self,
+  inputs,
+  ...
+}: {
   flake.homeModules.agents = {
     pkgs,
     config,
     dotfilesRoot,
     ...
-  }: {
+  }: let
+    extensions = self.packages.${pkgs.stdenv.hostPlatform.system}.pi-development-extensions;
+  in {
     home.packages = [
       inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default
       pkgs.claude-code
       pkgs.nodejs
     ];
 
-    home.file.".pi/agent/models.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/models.json";
+    home.file = {
+      ".pi/agent/models.json".source =
+        config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/models.json";
+
+      # Discover only the main entry point; worker resources are selected by dispatch.
+      ".pi/agent/nix-packages".source = extensions;
+      ".pi/agent/extensions/development.ts".text = ''
+        export { default } from "${extensions}/roles/main.ts";
+      '';
+      ".pi/agent/agents/coder.md".source = "${extensions}/agents/coder.md";
+      ".pi/agent/skills/pi-lens".source = "${extensions}/node_modules/pi-lens/skills";
+    };
 
     home.sessionVariables = {
       LLAMA_BASE_URL = "http://127.0.0.1:11434";

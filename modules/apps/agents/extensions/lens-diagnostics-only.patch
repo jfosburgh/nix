@@ -1,0 +1,34 @@
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -18822,2 +18822,9 @@
+ function resolvePiLensFlagWithSource(name2, value, config, projectConfig, editedFilePath, projectRoot) {
++  // Diagnostic-only builds must not permit configuration to restore automatic edits.
++  if (name2 === "no-autoformat" || name2 === "no-autofix") {
++    return { value: true, source: "nix-policy" };
++  }
++  if (name2 === "lens-actionable-warning-autofix") {
++    return { value: false, source: "nix-policy" };
++  }
+   const spec = getLensFlagSpec(name2);
+@@ -158010,3 +158017,4 @@
+ export {
++  resolvePiLensFlagWithSource as resolveNixLensFlag,
+   createHostPorts,
+   index_default as default
+--- a/dist/chunk-WMDUT4KH.js
++++ b/dist/chunk-WMDUT4KH.js
+@@ -2408,2 +2408,9 @@
+ function resolvePiLensFlagWithSource(name, value, config, projectConfig, editedFilePath, projectRoot) {
++  // Diagnostic-only builds must not permit configuration to restore automatic edits.
++  if (name === "no-autoformat" || name === "no-autofix") {
++    return { value: true, source: "nix-policy" };
++  }
++  if (name === "lens-actionable-warning-autofix") {
++    return { value: false, source: "nix-policy" };
++  }
+   const spec = getLensFlagSpec(name);
+@@ -5999,3 +6006,4 @@
+   loadPiLensGlobalConfig,
++  resolvePiLensFlagWithSource as resolveNixLensFlag,
+   resolvePiLensFlag,
+   ephemeralStagingRoot,
