@@ -12,10 +12,10 @@ Manager enables the main role with a small re-export at
 `~/.pi/agent/skills/pi-lens`.
 
 Building the package alone does not activate these links. Applying Home Manager
-enables the main entry point without replacing `~/.pi/agent/settings.json`,
-installing npm packages into the user profile, or managing authentication.
-Locally managed packages such as the personal wiki remain independent and are
-not added to the shared Nix configuration.
+enables the main entry point and manages `~/.pi/agent/settings.json` itself as a
+repo-backed file, without installing npm packages into the user profile or
+managing authentication. Locally managed packages such as the personal wiki
+remain independent and are not added to the shared Nix configuration.
 
 ## Contents
 
@@ -53,9 +53,10 @@ active provider, `/fast` toggles supported Codex Fast mode, and `/split`,
 `/split-height`, `/split-tools-width`, `/split-divider`, `/split-trim-response`
 compose pi's fullscreen layout; `/split-save` persists the current layout as the
 startup defaults for new windows. The split panels need pi's fullscreen TUI mode,
-which stays a locally managed setting this bundle does not change. Both packages
-keep their published defaults, including usage's experimental features being off,
-and neither changes local model or TUI settings.
+which is a `tuiMode` entry in the repo-backed settings file, not something these
+extensions change: enable it by editing `../settings.json` and re-applying. Both
+packages keep their published defaults, including usage's experimental features
+being off, and neither registers model or TUI settings of its own.
 
 The worker definition deliberately leaves tool selection to Pi and its role entry
 point so Lens tools are not accidentally excluded by a built-in-tool-only
@@ -81,23 +82,41 @@ home-manager switch --flake 'path:.#<your-home-profile>'
 `path:.` includes new, untracked files during review. Once files are tracked,
 normal `.#<your-home-profile>` flake references also work. Home Manager's normal
 file-collision checks remain enabled; existing unmanaged files at the new paths
-are not forcibly overwritten. Start a new Pi process or use `/reload` to load the
-managed entry point after activation.
+are not forcibly overwritten. `~/.pi/agent/settings.json` is now a managed path,
+so an existing unmanaged copy there produces an ordinary collision and activation
+will refuse to overwrite it: back it up and move it aside first, for example to
+`~/.pi/agent/settings.json.local`, then re-apply. Merge any settings you want to
+keep into `modules/apps/agents/settings.json` rather than forcing the overwrite.
+Start a new Pi process or use `/reload` to load the managed entry point after
+activation.
 
-The extension preserves the selected model and locally managed default. To ensure
-Sol is the main model when starting on a machine with another default:
+### Settings and model defaults
 
-```sh
-pi --model openai/gpt-6.1-sol
-```
+`~/.pi/agent/settings.json` is a symlink to
+`modules/apps/agents/settings.json`, which carries only `defaultProvider: "openai"`
+and `defaultModel: "gpt-6.1-sol"`. New Pi processes start on that Sol model without
+a flag; `pi --model <provider>/<model>` still overrides the choice for a single
+process, and the in-session model controls still apply to the current session.
+The coder definition explicitly selects `strata-server/strata-coder`, independently
+of these defaults.
 
-Your existing Sol default need not change. The coder definition explicitly selects
-`strata-server/strata-coder`, independently of the main model.
+Because the file is writable through the symlink, Pi's own writes to it land in the
+repository and appear as working-tree changes: `pi install` package declarations,
+saved layout defaults, and machine-specific state such as `deviceId` and
+`lastChangelogVersion`. Treat those diffs as ordinary config edits — review them,
+and do not commit machine-specific identifiers unless that is deliberate. The
+checked-in file deliberately contains no such metadata.
+
+Everything else stays outside this module: provider credentials in `auth.json`,
+project-level `.pi/settings.json`, and locally installed packages such as the wiki
+are not managed here.
 
 Do not also `pi install` the bundled packages into the same loadout: that can
 register duplicate tools. If copies were previously installed locally, inspect
 `pi list` and resolve those duplicate declarations before enabling the Nix-managed
-main role; do not remove unrelated local packages such as the wiki.
+main role; do not remove unrelated local packages such as the wiki. Note that
+`pi install` writes its declarations into the managed settings file, so that
+change shows up as a repository diff.
 
 ## Worker launch isolation
 

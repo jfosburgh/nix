@@ -21,6 +21,11 @@
       ".pi/agent/models.json".source =
         config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/models.json";
 
+      # Writable repo-backed settings: Pi's own writes to this file show up as
+      # working-tree changes here, so they are reviewed like any other config edit.
+      ".pi/agent/settings.json".source =
+        config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/settings.json";
+
       # Discover only the main entry point; worker resources are selected by dispatch.
       ".pi/agent/nix-packages".source = extensions;
       ".pi/agent/extensions/development.ts".text = ''
