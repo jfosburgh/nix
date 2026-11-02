@@ -491,6 +491,82 @@ class FdcTests(unittest.TestCase):
         with patch.object(planner, "get_fdc", side_effect=planner.PlannerError("Create a free key")), patch("sys.stderr", new_callable=io.StringIO):
             self.assertEqual(planner.main(["fdc-search", "milk"]), 1)
 
+class NutritionWriteTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.receipt = Path(self.tmp.name) / "nutrition.json"
+        self.report = {"complete": True, "perServing": {"calories": 318.32, "fat": 19.55, "carbs": 9.36, "protein": 25.76},
+                       "sources": [{"fdcId": 171955, "description": "Fish, cod, Atlantic, raw", "dataType": "SR Legacy"}],
+                       "quantities": [{"name": "cod", "grams": 680.43}], "partialIngredients": [],
+                       "unmatchedIngredients": [], "unquantifiedIngredients": []}
+
+    class Client:
+        def __init__(self, apply=True):
+            self.calls, self.sent = [], {}
+            self.apply = apply
+            self.state = {"id": "r1", "version": 1, "calories": 319, "fat": "19.80", "carbs": "9.60", "protein": "25.80",
+                          "notes": "Keep me.\n\n[norish-planner nutrition]\nStatus: estimated\nBasis: old\n[/norish-planner nutrition]",
+                          "tags": [{"name": "dinner"}, {"name": "planner:nutrition-estimated"}], "images": [{"id": "img"}]}
+
+        def recipe(self, rid):
+            return self.state
+
+        def trpc(self, procedure, body):
+            self.sent, self.calls = body, self.calls + [procedure]
+            if self.apply:
+                self.state = {**self.state, **body["data"], "version": self.state["version"] + 1}
+            return {"result": {"data": {"json": {"success": True}}}}
+
+    def test_write_requires_approval_and_receipt(self):
+        with patch("sys.stderr", new_callable=io.StringIO) as err:
+            self.assertEqual(planner.main(["set-nutrition", "r1", "--report", self._report(), "--receipt", str(self.receipt)]), 1)
+        self.assertIn("--confirm", err.getvalue())
+
+    def _report(self):
+        path = Path(self.tmp.name) / "report.json"
+        json.dump(self.report, path.open("w"))
+        return str(path)
+
+    def test_incomplete_report_is_refused_without_acknowledgement(self):
+        report = dict(self.report, complete=False, unmatchedIngredients=["cream"])
+        path = Path(self.tmp.name) / "partial.json"
+        json.dump(report, path.open("w"))
+        client = self.Client(None)
+        with self.assertRaisesRegex(planner.PlannerError, "incomplete"):
+            planner.set_nutrition(client, "r1", json.load(path.open()), "estimated", False, self.receipt)
+
+    def test_values_notes_and_images_survive_the_update(self):
+        client = self.Client()
+        result = planner.set_nutrition(client, "r1", self.report, "verified", False, self.receipt)
+        self.assertEqual(client.calls, ["recipes.update"])
+        self.assertEqual(client.sent["version"], 1)
+        self.assertNotIn("images", client.sent["data"])
+        self.assertEqual(client.sent["data"]["calories"], 318)
+        self.assertEqual(client.sent["data"]["fat"], "19.55")
+        self.assertIn("Keep me.", client.sent["data"]["notes"])
+        self.assertNotIn("Basis: old", client.sent["data"]["notes"])
+        self.assertIn("Fish, cod, Atlantic, raw [SR Legacy]", client.sent["data"]["notes"])
+        self.assertIn("cod 680.43 g", client.sent["data"]["notes"])
+        self.assertIn("Previous stored values at write time: 319 kcal, 19.80 g fat, 9.60 g carbs, 25.80 g protein",
+                      client.sent["data"]["notes"])
+        self.assertNotIn("{'calories'", client.sent["data"]["notes"])
+        self.assertEqual([tag["name"] for tag in client.sent["data"]["tags"]], ["dinner", "planner:nutrition-verified"])
+        self.assertEqual(result["previous"], {"calories": 319, "fat": "19.80", "carbs": "9.60", "protein": "25.80"})
+        self.assertEqual(result["imagesPreserved"], 1)
+
+    def test_stale_write_is_caught_by_readback(self):
+        client = self.Client(apply=False)
+        with self.assertRaisesRegex(planner.PlannerError, "not confirmed"):
+            planner.set_nutrition(client, "r1", self.report, "estimated", False, self.receipt)
+
+    def test_receipt_blocks_a_second_submission(self):
+        client = self.Client()
+        planner.set_nutrition(client, "r1", self.report, "estimated", False, self.receipt)
+        self.assertEqual(self.receipt.stat().st_mode & 0o777, 0o600)
+        with self.assertRaisesRegex(planner.PlannerError, "already submitted"):
+            planner.set_nutrition(self.Client(), "r1", self.report, "estimated", False, self.receipt)
+
 
 if __name__ == "__main__":
     unittest.main()

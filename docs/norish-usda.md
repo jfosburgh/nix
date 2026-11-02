@@ -105,6 +105,45 @@ Then preview and create as described in the recipe-write runbook. The tool recor
 this provenance in the recipe notes and tags it `planner:nutrition-estimated`
 or `planner:nutrition-verified`.
 
+## Writing the result back: `set-nutrition`
+
+`fdc-calc` is read-only. To replace an existing recipe's stored macros:
+
+```sh
+norish-planner fdc-calc recipe.json > report.json
+norish-planner set-nutrition <recipeId> --report report.json \
+  --receipt ~/.local/state/norish-planner/nutrition/<name>.json --confirm
+```
+
+The command requires `--confirm` and a `--receipt`, and it:
+
+- refuses an incomplete report unless you pass `--ack-incomplete`;
+- sends a **version-checked** tRPC update omitting `images`, so photos survive;
+- **reads the recipe back** and fails if the values did not land — Norish logs a
+  stale update yet still returns `success: true`, so the response alone proves nothing;
+- replaces any existing `[norish-planner nutrition]` block rather than stacking
+  duplicates, and swaps the `planner:nutrition-*` tag;
+- records the previous values in the receipt, which blocks re-submission.
+
+The note now names the USDA records and the gram quantities actually used, so the
+number can be audited later without the match store.
+
+## Applied to the existing library
+
+All four recipes carry USDA-derived macros with provenance notes and
+`planner:nutrition-estimated` tags. The website-reported values they replaced are
+kept in the receipts under `~/.local/state/norish-planner/nutrition/`:
+
+| Recipe | Was | Now |
+|---|---|---|
+| Maple Latte | 155 / 6 / 20 / 6 (hand estimate) | 152 / 5.88 / 19.39 / 5.96 |
+| Baked Cod | 319 / 19.80 / 9.60 / 25.80 | 318 / 19.55 / 9.36 / 25.76 |
+| Tortellini Soup | 256 / 8.60 / 32.80 / 12.50 | 469 / 25.57 / 33.86 / 27.67 |
+| Roasted Broccoli | 66 / *null* / 13.90 / 5.10 | 307 / 28.15 / 11.61 / 4.85 |
+
+The soup is written with `--ack-incomplete`: USDA's Foundation tomato paste record
+has no calorie value, so its ~27 kcal contribution is absent from that total.
+
 ## Scope
 
 This currently covers the **four macros only**. Fibre, sodium, sugars and
@@ -114,8 +153,10 @@ Norish's upcoming extended-nutrition support.
 ## Verification
 
 Offline tests cover USDA key rejection, per-100 g handling for every data type,
-null values treated as unknown, unit/density conversion, incomplete reporting, and
-private match-store writes.
+null values treated as unknown, unit/density conversion, incomplete reporting,
+private match-store writes, and `set-nutrition` (approval gate, incomplete-report
+gate, notes/tag rewriting, image preservation, read-back detection of stale writes,
+receipt replay).
 
 Live USDA requests have been made with a real key, confirming the per-100 g
 behaviour above and the records used for the Maple Latte.

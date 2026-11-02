@@ -9,6 +9,7 @@ import ipaddress
 import json
 import math
 import os
+import re
 from pathlib import Path
 import stat
 import sys
@@ -141,8 +142,23 @@ class Client:
 
     def request(self, method, path, body=None):
         payload = None if body is None else json.dumps(body, allow_nan=False).encode()
-        request = urllib.request.Request(self.url + "/api/v1" + path, data=payload, method=method,
-                                         headers={"x-api-key": self.token, "Content-Type": "application/json"})
+        return self._send(urllib.request.Request(self.url + "/api/v1" + path, data=payload, method=method,
+                                                headers={"x-api-key": self.token,
+                                                         "Content-Type": "application/json"}))
+
+    def trpc(self, procedure, body):
+        # Recipe updates and image uploads exist only on the tRPC surface; the
+        # public REST API exposes no recipe update procedure.
+        payload = json.dumps({"json": body}, allow_nan=False).encode()
+        response = self._send(urllib.request.Request(self.url + "/api/trpc/" + procedure, data=payload,
+                                                    method="POST", headers={"x-api-key": self.token,
+                                                                            "Content-Type": "application/json"}))
+        if isinstance(response, dict) and "error" in response:
+            error = response["error"].get("json") or {}
+            raise PlannerError(f"Norish tRPC {procedure}: {error.get('message', 'rejected')}")
+        return response
+
+    def _send(self, request):
         # Never forward a key to a redirected origin (or accidentally accept a login page).
         class NoRedirect(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, *args, **kwargs):
@@ -155,9 +171,9 @@ class Client:
             status = error.code
             error.close()
             suffix = f"; retry after {wait} seconds" if status == 429 else ""
-            raise PlannerError(f"Norish {method} {path}: HTTP {status}{suffix}") from None
+            raise PlannerError(f"Norish request: HTTP {status}{suffix}") from None
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
-            raise PlannerError(f"Norish {method} {path}: network error or invalid JSON") from None
+            raise PlannerError("Norish request: network error or invalid JSON") from None
 
     def recipe(self, rid):
         return self.request("GET", "/recipes/" + recipe_id(rid))
@@ -590,7 +606,7 @@ def fdc_calc(recipe, matches, get_food):
     if not isinstance(servings, int) or isinstance(servings, bool):
         raise PlannerError("Recipe servings must be a positive integer")
     totals, unquantified, unmatched, notes = dict.fromkeys(MACROS, 0.0), [], [], []
-    partial = []
+    quantities, partial = [], []
     lines = recipe.get("recipeIngredients") or recipe.get("ingredients") or []
     for ingredient in lines:
         name = (ingredient.get("ingredientName") or ingredient.get("name") or "").strip().lower()
@@ -609,6 +625,7 @@ def fdc_calc(recipe, matches, get_food):
         if grams is None:
             unquantified.append({"name": name, "reason": f"unit {unit or 'none'} not convertible to grams"})
             continue
+        quantities.append({"name": name, "grams": round(grams, 2)})
         per100g = match.get("per100g")
         if not per100g:
             fetched = get_food(match["fdcId"]) if match.get("fdcId") else None
@@ -619,7 +636,9 @@ def fdc_calc(recipe, matches, get_food):
             notes.append({"name": name, "fdcId": fetched["fdcId"], "description": fetched["description"],
                           "dataType": fetched.get("dataType"), "brandName": fetched.get("brandName")})
         else:
-            notes.append({"name": name, "fdcId": match.get("fdcId"), "per100g": per100g})
+            notes.append({"name": name, "fdcId": match.get("fdcId"), "per100g": per100g,
+                          "description": match.get("description"), "dataType": match.get("dataType"),
+                          "brandName": match.get("brandName")})
         missing = [macro for macro in MACROS if macro not in per100g]
         if missing:
             partial.append({"name": name, "missingMacros": missing})
@@ -632,12 +651,94 @@ def fdc_calc(recipe, matches, get_food):
             "unmatchedIngredients": sorted(set(unmatched)),
             "unquantifiedIngredients": unquantified,
             "partialIngredients": partial,
+            "quantities": quantities,
             "sources": notes,
             "warnings": ["USDA values are per matched food record and portion; preparation (cooked rice, drained "
                          "cans, reduction) can differ materially.",
                          "A missing ingredient makes the totals incomplete, not zero.",
                          "partialIngredients lists ingredients whose record lacks one of the four macros; that macro's "
                          "contribution is absent from the total, not zero."]}
+
+
+def set_nutrition(client, recipe_id, report, status, ack_incomplete, receipt_path):
+    if not report.get("complete") and not ack_incomplete:
+        raise PlannerError("Calc report is incomplete; pass --ack-incomplete to accept totals that omit ingredients or macros")
+    missing = [macro for macro in MACROS if report.get("perServing", {}).get(macro) is None]
+    if missing:
+        raise PlannerError(f"Calc report lacks macro values for {', '.join(missing)}")
+    if receipt_path:
+        with receipt_lock(receipt_path):
+            if receipt_path.exists():
+                prior = read_json(receipt_path)
+                if prior.get("schema") != "nutrition-write-v1" or prior.get("recipeId") != recipe_id:
+                    raise PlannerError("Receipt belongs to another recipe or schema")
+                raise PlannerError("Nutrition write already submitted from this receipt; not resubmitted")
+    current = client.recipe(recipe_id)
+    previous = {macro: current.get(macro) for macro in MACROS}
+    version = current.get("version")
+    if not isinstance(version, int) or isinstance(version, bool):
+        raise PlannerError("Recipe has no usable version; refusing an unversioned update")
+    def describe(values):
+        return ", ".join(f"{values[macro]} {unit}" if values[macro] is not None else f"{macro} unknown"
+                         for macro, unit in zip(MACROS, ("kcal", "g fat", "g carbs", "g protein")))
+
+    records = ", ".join(f"fdcId {s.get('fdcId')} ({s.get('description')}"
+                        + (f", {s['brandName']}" if s.get("brandName") else "")
+                        + f" [{s.get('dataType', 'record')}])" for s in report.get("sources", []))
+    weights = ", ".join(f"{q['name']} {q['grams']} g" for q in report.get("quantities", []))
+    gaps = []
+    if report.get("partialIngredients"):
+        gaps.append("missing macro values for " + "; ".join(
+            f"{p['name']} ({', '.join(p['missingMacros'])})" for p in report["partialIngredients"]))
+    if report.get("unmatchedIngredients"):
+        gaps.append("no USDA match: " + ", ".join(report["unmatchedIngredients"]))
+    if report.get("unquantifiedIngredients"):
+        gaps.append("not quantified: " + ", ".join(u["name"] for u in report["unquantifiedIngredients"]))
+    basis = (f"USDA FoodData Central per-100 g amounts scaled to gram quantities. Records: {records}. "
+             f"Quantities used: {weights}. " + ("Gaps: " + "; ".join(gaps) + ". " if gaps else "") +
+             f"Previous stored values at write time: {describe(previous)}.")
+    annotation = (f"[norish-planner nutrition]\nStatus: {status}\nBasis: {basis}\n"
+                  "Values supplied per serving; not independently verified by this tool.\n"
+                  "[/norish-planner nutrition]")
+    existing = (current.get("notes") or "")
+    existing = re.sub(r"\n?\[norish-planner nutrition\]\n.*?\n\[/norish-planner nutrition\]\n?", "", existing, flags=re.S)
+    notes = (existing.rstrip() + "\n\n" + annotation).strip()
+    tags = [{"name": tag["name"]} for tag in current.get("tags", []) if isinstance(tag, dict)]
+    tags = [tag for tag in tags if not tag["name"].startswith("planner:nutrition-")]
+    tags.append({"name": f"planner:nutrition-{status}"})
+    data = {"notes": notes, "tags": tags}
+    for index, macro in enumerate(MACROS):
+        value = float(report["perServing"][macro])
+        if index == 0:
+            if not 0 <= round(value) <= 2147483647:
+                raise PlannerError("Calories outside Norish's integer field range")
+            data[macro] = round(value)
+        else:
+            if not 0 <= value <= 9999.99:
+                raise PlannerError(f"{macro} outside Norish's numeric field range")
+            data[macro] = f"{value:.2f}"
+    # Norish logs a stale update but still reports success, so the write is
+    # confirmed by reading the recipe back rather than trusting the response.
+    client.trpc("recipes.update", {"id": recipe_id, "version": version, "data": data})
+    after = client.recipe(recipe_id)
+    written = {macro: after.get(macro) for macro in MACROS}
+    if any(written[macro] is None for macro in MACROS):
+        raise PlannerError("Read-back shows a macro still unset; inspect the recipe before retrying")
+
+    def normalise(values):
+        return {MACROS[0]: int(float(values[MACROS[0]])),
+                **{macro: f"{float(values[macro]):.2f}" for macro in MACROS[1:]}}
+
+    if normalise(after) != normalise(data) or after.get("version") == version:
+        raise PlannerError("Update not confirmed by read-back; inspect the recipe before retrying")
+    if receipt_path:
+        save_receipt(receipt_path, {"schema": "nutrition-write-v1", "recipeId": recipe_id,
+                                    "fromVersion": version, "toVersion": after.get("version"),
+                                    "previous": previous, "written": written})
+    return {"recipeId": recipe_id, "previous": previous, "written": written,
+            "version": after.get("version"), "status": status,
+            "imagesPreserved": len(after.get("images") or []),
+            "warning": "Notes and tags were rewritten; the previous provenance block was replaced."}
 
 
 def get_fdc(args):
@@ -723,9 +824,17 @@ def main(argv=None):
     calc = sub.add_parser("fdc-calc", help="Compute recipe macros from matched ingredients (read-only)")
     calc.add_argument("file")
     calc.add_argument("--matches", default="~/.config/norish-planner/usda-matches.json")
+    setn = sub.add_parser("set-nutrition", help="Replace an existing recipe's stored macros with a calc report")
+    setn.add_argument("recipe_id")
+    setn.add_argument("--report", required=True, help="fdc-calc JSON output")
+    setn.add_argument("--status", choices=("estimated", "verified"), default="estimated")
+    setn.add_argument("--receipt", required=True, help="Persistent receipt required for writes; never auto-resubmits")
+    setn.add_argument("--confirm", action="store_true", help="User-approved recipe write")
+    setn.add_argument("--ack-incomplete", action="store_true",
+                      help="Accept a report whose totals omit ingredients or macros")
     args = parser.parse_args(argv)
     try:
-        if args.command in ("apply", "undo") and not args.confirm:
+        if args.command in ("apply", "undo", "set-nutrition") and not args.confirm:
             raise PlannerError("Write operation requires --confirm after user approval")
         if args.command == "apply" and not args.ack_portions:
             raise PlannerError("Norish cannot store planned portions; keep the receipt and pass --ack-portions")
@@ -807,6 +916,9 @@ def main(argv=None):
         elif args.command == "fdc-calc":
             result = fdc_calc(read_json(args.file), load_matches(Path(args.matches).expanduser()),
                               lambda fid: fdc_food(get_fdc(args), fid))
+        elif args.command == "set-nutrition":
+            result = set_nutrition(client, args.recipe_id, read_json(args.report), args.status,
+                                   args.ack_incomplete, Path(args.receipt).expanduser())
         elif recipe_write:
             result = submit_recipe(client, args.command, payload, Path(args.receipt).expanduser())
         elif args.command == "calendar":
