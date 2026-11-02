@@ -26,7 +26,8 @@ FDC_BASE = "https://api.nal.usda.gov"
 # Stable FoodData Central nutrient IDs for the four macros.
 FDC_NUTRIENT_IDS = {"calories": 1008, "protein": 1003, "fat": 1004, "carbs": 1005}
 MASS_UNITS = {"g": 1, "gram": 1, "grams": 1, "kg": 1000, "ounce": 28.3495, "pound": 453.619,
-              "fl oz": 28.3495, "fluid ounce": 28.3495, "oz": 28.3495}
+              "pounds": 453.619, "lb": 453.619, "lbs": 453.619, "fl oz": 28.3495, "fluid ounce": 28.3495,
+              "oz": 28.3495}
 # "shot" is treated as 30 ml (one espresso shot); a double shot is therefore 60 ml.
 VOLUME_UNITS = {"ml": 1, "milliliter": 1, "l": 1000, "cup": 240, "tbsp": 15, "tablespoon": 15,
                 "tsp": 5, "teaspoon": 5, "shot": 30, "shots": 30}
@@ -589,6 +590,7 @@ def fdc_calc(recipe, matches, get_food):
     if not isinstance(servings, int) or isinstance(servings, bool):
         raise PlannerError("Recipe servings must be a positive integer")
     totals, unquantified, unmatched, notes = dict.fromkeys(MACROS, 0.0), [], [], []
+    partial = []
     lines = recipe.get("recipeIngredients") or recipe.get("ingredients") or []
     for ingredient in lines:
         name = (ingredient.get("ingredientName") or ingredient.get("name") or "").strip().lower()
@@ -618,18 +620,24 @@ def fdc_calc(recipe, matches, get_food):
                           "dataType": fetched.get("dataType"), "brandName": fetched.get("brandName")})
         else:
             notes.append({"name": name, "fdcId": match.get("fdcId"), "per100g": per100g})
+        missing = [macro for macro in MACROS if macro not in per100g]
+        if missing:
+            partial.append({"name": name, "missingMacros": missing})
         for macro in MACROS:
             if macro in per100g:
                 totals[macro] += per100g[macro] * grams / 100
     per_serving = {macro: round(totals[macro] / servings, 2) for macro in MACROS}
     return {"servings": servings, "perServing": per_serving,
-            "complete": not (unmatched or unquantified),
+            "complete": not (unmatched or unquantified or partial),
             "unmatchedIngredients": sorted(set(unmatched)),
             "unquantifiedIngredients": unquantified,
+            "partialIngredients": partial,
             "sources": notes,
             "warnings": ["USDA values are per matched food record and portion; preparation (cooked rice, drained "
                          "cans, reduction) can differ materially.",
-                         "A missing ingredient makes the totals incomplete, not zero."]}
+                         "A missing ingredient makes the totals incomplete, not zero.",
+                         "partialIngredients lists ingredients whose record lacks one of the four macros; that macro's "
+                         "contribution is absent from the total, not zero."]}
 
 
 def get_fdc(args):

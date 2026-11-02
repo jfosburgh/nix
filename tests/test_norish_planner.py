@@ -453,6 +453,15 @@ class FdcTests(unittest.TestCase):
             lambda fid: self.fail("no USDA call expected"))
         self.assertEqual(report["perServing"]["calories"], 5.0)
 
+    def test_record_missing_one_macro_is_partial_not_complete(self):
+        # Mirrors USDA Foundation tomato paste: fat and protein present, calories absent.
+        report = self.latte({"whole milk": {"per100g": {"calories": 64, "fat": 3.4, "carbs": 4.8, "protein": 3.4}},
+                             "maple syrup": {"per100g": {"calories": 260, "fat": 0, "carbs": 67, "protein": 0}},
+                             "espresso": {"per100g": {"fat": 0.18, "carbs": 1.67, "protein": 0.12}, "densityGPerMl": 1.0}})
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["partialIngredients"], [{"name": "espresso", "missingMacros": ["calories"]}])
+        self.assertEqual(report["perServing"]["calories"], 154.2)
+
     def test_incomplete_report_is_not_presented_as_zero(self):
         report = self.latte({})
         self.assertEqual(report["perServing"], dict.fromkeys(planner.MACROS, 0.0))
