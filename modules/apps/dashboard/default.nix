@@ -4,6 +4,7 @@
     links = [
       { name = "Home Assistant"; subdomain = "homeassistant"; }
       { name = "Vaultwarden"; subdomain = "bitwarden"; }
+      { name = "Forgejo"; subdomain = "git"; }
       { name = "Nextcloud"; subdomain = "cloud"; }
       { name = "Immich"; subdomain = "photos"; }
       { name = "Jellyfin"; subdomain = "jellyfin"; }

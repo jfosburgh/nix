@@ -19,6 +19,7 @@
       nextcloud
       immich
       dashboard
+      forgejo
       budget-tracker
       strata-proxy
       blade-configuration
