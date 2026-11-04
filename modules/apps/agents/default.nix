@@ -38,6 +38,8 @@
         export { default } from "${extensions}/node_modules/pi-btw/extensions/btw.ts";
       '';
       ".pi/agent/skills/btw".source = "${extensions}/node_modules/pi-btw/skills/btw";
+      ".pi/agent/skills/karpathy-llm-wiki".source =
+        config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/skills/karpathy-llm-wiki";
     };
 
     home.sessionVariables = {
