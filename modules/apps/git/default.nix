@@ -1,5 +1,7 @@
 {...}: {
-  flake.homeModules.git = {...}: {
+  flake.homeModules.git = {pkgs, ...}: {
+    home.packages = [pkgs.forgejo-cli];
+
     programs.git = {
       enable = true;
       settings = {
