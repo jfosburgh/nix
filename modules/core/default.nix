@@ -15,6 +15,7 @@
       git
       home-manager
       pciutils
+      python3
       vim
       wget
     ];

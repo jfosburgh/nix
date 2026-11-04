@@ -26,13 +26,18 @@
       ".pi/agent/settings.json".source =
         config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/settings.json";
 
-      # Discover only the main entry point; worker resources are selected by dispatch.
+      # Discover only these three extensions; dependencies stay outside discovery paths.
       ".pi/agent/nix-packages".source = extensions;
       ".pi/agent/extensions/development.ts".text = ''
-        export { default } from "${extensions}/roles/main.ts";
+        export { default } from "${extensions}/node_modules/@juicesharp/rpiv-ask-user-question/index.ts";
       '';
-      ".pi/agent/agents/coder.md".source = "${extensions}/agents/coder.md";
-      ".pi/agent/skills/pi-lens".source = "${extensions}/node_modules/pi-lens/skills";
+      ".pi/agent/extensions/web-access.ts".text = ''
+        export { default } from "${extensions}/node_modules/pi-web-access/dist/index.js";
+      '';
+      ".pi/agent/extensions/btw.ts".text = ''
+        export { default } from "${extensions}/node_modules/pi-btw/extensions/btw.ts";
+      '';
+      ".pi/agent/skills/btw".source = "${extensions}/node_modules/pi-btw/skills/btw";
     };
 
     home.sessionVariables = {
