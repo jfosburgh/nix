@@ -31,7 +31,10 @@ This cleanup does not reset model configuration, provider credentials, sessions,
 themes, or personal settings. `~/.pi/agent/settings.json` remains a writable,
 repo-backed symlink to `modules/apps/agents/settings.json`; Pi's writes there
 appear as working-tree changes. Model configuration remains managed separately.
-The existing SearXNG service and `SEARXNG_BASE_URL` setting are preserved.
+Search is shared from Blade at `https://search.threegoldenhairs.me` via
+`SEARXNG_BASE_URL`; agent hosts no longer install a local SearXNG service.
+Trusted LAN or tailnet access is required. Deploy/test Blade before switching
+clients; see [`docs/searxng.md`](../../../../docs/searxng.md).
 
 The module does not delete unmanaged plugins or project-level `.pi` resources.
 Do not also declare these same plugins through `pi install`, which could register

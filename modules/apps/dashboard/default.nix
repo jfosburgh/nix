@@ -11,6 +11,7 @@
       { name = "Audiobookshelf"; subdomain = "audiobooks"; }
       { name = "BookOrbit"; subdomain = "books"; }
       { name = "Strata Coder"; subdomain = "strata"; }
+      { name = "Search"; subdomain = "search"; }
       { name = "Norish"; subdomain = "recipes"; }
     ];
   in {

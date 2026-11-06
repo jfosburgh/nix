@@ -22,6 +22,7 @@
       forgejo
       budget-tracker
       strata-proxy
+      searxng
       blade-configuration
       blade-backups
       blade-hardware

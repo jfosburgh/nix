@@ -47,37 +47,12 @@
     home.sessionVariables = {
       LLAMA_BASE_URL = "http://127.0.0.1:11434";
 
-      # Local SearXNG backend for pi-web-access' web_search (auto mode prefers it).
-      SEARXNG_BASE_URL = "http://127.0.0.1:8888";
+      # Shared Blade-hosted search; clients need trusted LAN or tailnet access.
+      SEARXNG_BASE_URL = "https://search.threegoldenhairs.me";
     };
   };
 
-  flake.nixosModules.agents = {...}: {
-    services.searx = {
-      enable = true;
-
-      # Read by systemd as root at unit start, so ProtectHome is no obstacle;
-      # keeps the secret out of the Nix store.
-      environmentFile = "/home/james/.config/searxng/env";
-
-      settings = {
-        server = {
-          bind_address = "127.0.0.1";
-          port = 8888;
-
-          # pi-web-access queries SearXNG over GET (?format=json); the upstream
-          # default is POST which would 405 those requests.
-          method = "GET";
-
-          # Substituted from environmentFile at unit start; keeps the secret
-          # out of the Nix store.
-          secret_key = "\${SEARXNG_SECRET}";
-        };
-
-        # This SearXNG release gates non-HTML output behind an explicit opt-in;
-        # without this pi-web-access' format=json queries get 403.
-        search.formats = ["html" "json"];
-      };
-    };
-  };
+  # Retain the host module name for existing imports, but search is now
+  # provided only by Blade's separate searxng module, not by each agent host.
+  flake.nixosModules.agents = {...}: {};
 }
