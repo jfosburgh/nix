@@ -18,6 +18,8 @@
     ];
 
     home.file = {
+      # Repo-backed model registry; update the checkout on each Pi host together
+      # with the service configuration. Opening /model reloads these entries.
       ".pi/agent/models.json".source =
         config.lib.file.mkOutOfStoreSymlink "${dotfilesRoot}/modules/apps/agents/models.json";
 

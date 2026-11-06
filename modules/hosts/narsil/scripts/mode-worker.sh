@@ -1,3 +1,9 @@
+# The inference router must be integrated with mode transitions before a switch
+# can stop/reconfigure its backends. Refuse before touching services or sessions.
+if [[ -e /etc/narsil-inference-coordinator ]]; then
+  echo 'Live mode switching requires coordinated inference lifecycle support.' >&2
+  exit 1
+fi
 state_dir=/run/narsil-mode
 mode=${1:-}
 case "$mode" in headless|desktop) ;; *) echo 'Invalid switch mode' >&2; exit 2 ;; esac

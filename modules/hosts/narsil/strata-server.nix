@@ -1,5 +1,9 @@
 {self, ...}: {
-  flake.nixosModules.narsil-strata-mode = {pkgs, lib, ...}: let
+  flake.nixosModules.narsil-strata-mode = {
+    pkgs,
+    lib,
+    ...
+  }: let
     common = builtins.readFile ./scripts/mode-common.sh;
     stopManual = pkgs.writeScriptBin "stop-manual-strata" ''
       #!${pkgs.python312}/bin/python3
@@ -17,10 +21,11 @@
       runtimeInputs = with pkgs; [coreutils systemd];
       text = common + "\n" + builtins.readFile ./scripts/mode-command.sh;
     };
-    shortcut = mode: pkgs.writeShellApplication {
-      name = "narsil-${mode}";
-      text = ''exec ${lib.getExe command} ${mode} "$@"'';
-    };
+    shortcut = mode:
+      pkgs.writeShellApplication {
+        name = "narsil-${mode}";
+        text = ''exec ${lib.getExe command} ${mode} "$@"'';
+      };
   in {
     environment.systemPackages = [command (shortcut "headless") (shortcut "desktop")];
     environment.etc."narsil-mode".text = lib.mkDefault "desktop\n";
@@ -41,7 +46,11 @@
 
     # Inherit the ordinary system, but offer a separate boot entry. Nothing in
     # the normal desktop generation starts Strata or Narsil's upstream proxy.
-    specialisation.strata-server.configuration = {lib, ...}: {
+    specialisation.strata-server.configuration = {
+      config,
+      lib,
+      ...
+    }: {
       imports = [self.nixosModules.strata-server];
 
       system.nixos.tags = ["strata-server"];
@@ -58,7 +67,7 @@
       systemd.services.greetd-vt2.enable = lib.mkForce false;
       systemd.services.vt-switch-on-logout.enable = lib.mkForce false;
 
-      services.ollama.enable = lib.mkForce false;
+      services.ollama.enable = lib.mkIf (!(config.services.narsilInference.enable or false)) (lib.mkForce false);
       services.pipewire.enable = lib.mkForce false;
       services.pipewire.wireplumber.enable = lib.mkForce false;
       # Keep paired Bluetooth keyboards/mice usable on the headless text console.

@@ -17,6 +17,7 @@
       nix-ld
       steam
       ollama
+      inference-coordinator
       agents
     ];
   };

@@ -125,6 +125,7 @@ Path(os.environ['TEST_MODE']).write_text('{mode}\\n')
             block = 'if (( EUID != 0 )); then\n  exec /run/wrappers/bin/sudo -- "$0" "$@"\nfi\n'
             self.assertIn(block, source)
             source = source.replace(block, '')
+        source = source.replace('/etc/narsil-inference-coordinator', str(self.p / 'inference-coordinator'))
         source = source.replace('/run/narsil-mode', str(self.state))
         source = source.replace('/run/user/', str(self.p / 'users') + '/')
         source = source.replace('attempt<150', 'attempt<2')
@@ -132,6 +133,15 @@ Path(os.environ['TEST_MODE']).write_text('{mode}\\n')
         test_script.write_text('set -euo pipefail\n' + self.common + '\n' + source)
         return subprocess.run([shutil.which('bash'), str(test_script), *args],
                               env=dict(self.env, **env), text=True, capture_output=True, timeout=15)
+
+    def test_inference_coordinator_refuses_mode_switch_before_any_service_or_session_change(self):
+        (self.p / 'inference-coordinator').write_text('coordinated inference\n')
+        result = self.run_script('mode-worker.sh', 'headless')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('requires coordinated inference lifecycle support', result.stderr)
+        self.assertEqual(self.calls(), [])
+        self.assertFalse(self.state.exists())
+        self.assertEqual(self.marker.read_text(), 'desktop\n')
 
     def calls(self):
         return [json.loads(line) for line in self.log.read_text().splitlines()] if self.log.exists() else []

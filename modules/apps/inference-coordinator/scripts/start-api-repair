@@ -1,0 +1,52 @@
+#!/nix/store/nnm9gdr70ihc6zc9298mzz8jpcgaciql-bash-5.3p20/bin/bash
+# Explicit temporary commissioning service; no reload/activation/reprovisioning.
+# No automatic resume, command retry, original-unit changes or credential output.
+set -euo pipefail
+systemd=/nix/store/avshcbcrykiffn4vlhmz848ab69wbp9n-systemd-262/bin
+if [ "$EUID" -ne 0 ]; then
+  printf '%s\n' 'Explicit sudo required to start the repaired trial API in maintenance.' >&2
+  exit 1
+fi
+state=$("$systemd/systemctl" show inference-coordinator.service --property=ActiveState --value)
+case "$state" in
+  inactive|failed) ;;
+  *) printf '%s\n' 'Original API is not stopped; refusing another controller.' >&2; exit 1 ;;
+esac
+for property in MainPID ControlPID; do
+  value=$("$systemd/systemctl" show inference-coordinator.service --property="$property" --value)
+  if [ "$value" != 0 ]; then
+    printf '%s\n' 'Original API still has a process; refusing startup.' >&2
+    exit 1
+  fi
+done
+job=$("$systemd/systemctl" show inference-coordinator.service --property=Job --value)
+if [ -n "$job" ]; then
+  printf '%s\n' 'Original API has a pending job; refusing startup.' >&2
+  exit 1
+fi
+"$systemd/systemctl" is-active --quiet inference-supervisor.service
+# A pre-existing transient unit is refused by systemd-run, never restarted.
+# Wants (not Requires) on backends allows routine supervised backend teardown.
+exec "$systemd/systemd-run" --unit=inference-coordinator-repair --collect \
+  --description='Temporary protected inference API (validated systemd ACL credentials)' \
+  --property=Type=notify --property=NotifyAccess=main \
+  --property=User=inference-coordinator --property=Group=inference-coordinator \
+  --property=Requires=inference-supervisor.service \
+  '--property=Wants=strata.service ollama.service' \
+  '--property=After=strata.service ollama.service inference-supervisor.service' \
+  --property=LoadCredential=client:/var/lib/inference-coordinator-secrets/client \
+  --property=LoadCredential=admin:/var/lib/inference-coordinator-secrets/admin \
+  --property=UMask=0077 --property=KillMode=control-group --property=Restart=no \
+  --property=TimeoutStartSec=30 --property=TimeoutStopSec=35 --property=WatchdogSec=15 \
+  --property=MemoryMax=512M --property=TasksMax=32 \
+  --property=NoNewPrivileges=yes --property=PrivateTmp=yes --property=PrivateDevices=yes \
+  --property=ProtectSystem=strict --property=ProtectHome=yes \
+  --property=ProtectKernelTunables=yes --property=ProtectKernelModules=yes --property=ProtectControlGroups=yes \
+  --property=RestrictNamespaces=yes --property=RestrictSUIDSGID=yes --property=CapabilityBoundingSet= \
+  '--property=RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6' \
+  --property=IPAddressDeny=any --property=IPAddressAllow=localhost \
+  /nix/store/ixd421qmcxsq5j8rnx3a5fgp3y1s79cl-narsil-inference-coordinator-trial/bin/narsil-inference-api \
+  --template /nix/store/jsn76jav5pdqb19dlzk77cylh1mdlb91-narsil-inference-trial-config/template.json \
+  --config /var/lib/inference-coordinator/config.json \
+  --device /sys/bus/pci/devices/0000:08:00.0 \
+  --credential-unit inference-coordinator-repair.service

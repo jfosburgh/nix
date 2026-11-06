@@ -1,89 +1,79 @@
 {
+  "$schema": "https://pi.dev/schemas/models.schema.json",
   "providers": {
     "strata": {
-      "baseUrl": "http://127.0.0.1:8080/v1",
+      "baseUrl": "https://strata.threegoldenhairs.me/v1",
       "api": "openai-completions",
-      "apiKey": "strata-local",
-      "models": [
-        {
-          "id": "strata-coder",
-          "name": "Strata Localhost",
-          "reasoning": true,
-          "input": ["text"],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": "low",
-            "low": "low",
-            "medium": "medium",
-            "high": "high"
-          }
-        }
-      ]
+      "apiKey": "narsil-private-network",
+      "compat": { "supportsStore": false, "supportsDeveloperRole": false },
+      "models": [{
+        "id": "qwen3.8-flash-next-coder-iq1_m",
+        "name": "Strata Coder — Narsil",
+        "reasoning": true,
+        "input": ["text"],
+        "contextWindow": 131072,
+        "maxTokens": 16384,
+        "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+        "thinkingLevelMap": { "off": "none", "minimal": "low", "low": "low", "medium": "medium", "high": "high" }
+      }]
     },
     "strata-server": {
       "baseUrl": "https://strata.threegoldenhairs.me/v1",
       "api": "openai-completions",
-      "apiKey": "strata-private-network",
-      "models": [
-        {
-          "id": "strata-coder",
-          "name": "Strata Server",
-          "reasoning": true,
-          "input": ["text"],
-          "contextWindow": 262144,
-          "maxTokens": 16384,
-          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": "low",
-            "low": "low",
-            "medium": "medium",
-            "high": "high"
-          }
-        }
-      ]
+      "apiKey": "narsil-private-network",
+      "compat": { "supportsStore": false, "supportsDeveloperRole": false },
+      "models": [{
+        "id": "qwen3.8-flash-next-coder-iq1_m",
+        "name": "Strata Coder — Narsil (server alias)",
+        "reasoning": true,
+        "input": ["text"],
+        "contextWindow": 131072,
+        "maxTokens": 16384,
+        "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+        "thinkingLevelMap": { "off": "none", "minimal": "low", "low": "low", "medium": "medium", "high": "high" }
+      }]
     },
     "ollama": {
-      "baseUrl": "http://127.0.0.1:11434/v1",
+      "baseUrl": "https://strata.threegoldenhairs.me/ollama/v1",
       "api": "openai-completions",
-      "apiKey": "ollama",
+      "apiKey": "narsil-private-network",
       "compat": {
+        "supportsStore": false,
         "supportsDeveloperRole": false,
-        "supportsReasoningEffort": false
+        "supportsReasoningEffort": true,
+        "supportsUsageInStreaming": true,
+        "thinkingFormat": "openai"
       },
       "models": [
         {
-          "id": "gemma4-12b-160k",
+          "id": "gemma4:12b",
+          "name": "Gemma4 12B — Narsil (64K)",
           "reasoning": true,
-          "contextWindow": 163840,
+          "input": ["text"],
+          "contextWindow": 65536,
           "maxTokens": 8192,
-          "compat": {
-            "supportsDeveloperRole": false,
-            "supportsReasoningEffort": false
-          }
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "thinkingLevelMap": { "off": "none", "minimal": "low", "low": "low", "medium": "medium", "high": "high" }
         },
         {
-          "id": "qwen3.8-27b-64k",
+          "id": "ornith-1.5:9b",
+          "name": "Ornith 1.5 9B — Narsil (256K, experimental coding)",
           "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 262144,
+          "maxTokens": 8192,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "thinkingLevelMap": { "off": "none", "minimal": "low", "low": "low", "medium": "medium", "high": "high" }
+        },
+        {
+          "id": "nemotron-3.5-bolt:e4b",
+          "name": "Nemotron Bolt E4B — Narsil (64K helper)",
+          "reasoning": true,
+          "input": ["text"],
           "contextWindow": 65536,
-          "thinkingLevelMap": {
-            "low": "low",
-            "medium": "medium",
-            "xhigh": "xhigh"
-          },
-          "compat": {
-            "thinkingFormat": "chat-template",
-            "chatTemplateKwargs": {
-              "enable_thinking": { "$var": "thinking.enabled" },
-              "reasoning_effort": {
-                "$var": "thinking.effort",
-                "omitWhenOff": true
-              }
-            }
-          }
+          "maxTokens": 8192,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "thinkingLevelMap": { "off": "none", "minimal": "low", "low": "low", "medium": "medium", "high": "high" }
         }
       ]
     }

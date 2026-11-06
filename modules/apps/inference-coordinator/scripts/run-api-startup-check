@@ -1,0 +1,20 @@
+#!/nix/store/nnm9gdr70ihc6zc9298mzz8jpcgaciql-bash-5.3p20/bin/bash
+set -euo pipefail
+if [ "$EUID" -ne 0 ]; then
+  printf '%s\n' 'Explicit sudo required for disposable service credential/sandbox checks.' >&2
+  exit 1
+fi
+exec /nix/store/avshcbcrykiffn4vlhmz848ab69wbp9n-systemd-262/bin/systemd-run \
+  --unit=inference-startup-check --collect --wait --pipe \
+  --property=Type=exec --property=User=inference-coordinator --property=Group=inference-coordinator \
+  --property=LoadCredential=client:/var/lib/inference-coordinator-secrets/client \
+  --property=LoadCredential=admin:/var/lib/inference-coordinator-secrets/admin \
+  --property=UMask=0077 --property=KillMode=control-group --property=RuntimeMaxSec=30 \
+  --property=TimeoutStopSec=5 --property=MemoryMax=512M --property=TasksMax=32 \
+  --property=NoNewPrivileges=yes --property=PrivateTmp=yes --property=PrivateDevices=yes \
+  --property=ProtectSystem=strict --property=ProtectHome=yes \
+  --property=ProtectKernelTunables=yes --property=ProtectKernelModules=yes --property=ProtectControlGroups=yes \
+  --property=RestrictNamespaces=yes --property=RestrictSUIDSGID=yes --property=CapabilityBoundingSet= \
+  '--property=RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6' \
+  --property=IPAddressDeny=any --property=IPAddressAllow=localhost \
+  /nix/store/8lqrjrgrz5vllr7jm01zkns8dwvzchks-check-api-startup.py
